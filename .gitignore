@@ -1,0 +1,23 @@
+# Claude Code
+.claude/
+CLAUDE.md
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Output directories
+verified_counts/
+output/
+cell_counts_report.csv
+cel4_outlines.png
+
+# Images (potentially sensitive / large)
+images/
+
+# OS
+.DS_Store
