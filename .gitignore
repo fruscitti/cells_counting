@@ -16,8 +16,5 @@ output/
 cell_counts_report.csv
 cel4_outlines.png
 
-# Images (potentially sensitive / large)
-images/
-
 # OS
 .DS_Store
