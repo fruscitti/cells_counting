@@ -36,9 +36,13 @@ Scientists can analyze fluorescence images offline, save their work as named bat
 
 - [ ] Menu bar with File, Batch, and Analysis menus
 - [ ] Toolbar with primary analysis actions
-- [ ] Resizable left sidebar (splitter replaces fixed width)
 - [ ] Keyboard shortcuts for common actions
-- [ ] Persistent status bar (batch name, image count, cell count)
+
+### Validated in Phase 4
+
+- ✓ Resizable left sidebar via QSplitter (replaces fixed width) — Validated in Phase 4: layout-foundation
+- ✓ Action buttons hidden from sidebar panel — Validated in Phase 4: layout-foundation
+- ✓ Persistent status bar (batch name, image count, cell count) — Validated in Phase 4: layout-foundation
 
 ### Validated in Phase 3
 
@@ -113,4 +117,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-30 after v3.0 milestone start — UI Redesign (menu bar, toolbar, resizable sidebar, shortcuts, status bar)*
+*Last updated: 2026-03-30 after Phase 4 complete — resizable sidebar, hidden buttons, persistent status bar all verified green*
