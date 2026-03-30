@@ -1,19 +1,34 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: — Fluorescence Cell Counter Web App
+status: Ready to execute
+last_updated: "2026-03-30T01:10:55.798Z"
+progress:
+  total_phases: 1
+  completed_phases: 0
+  total_plans: 3
+  completed_plans: 1
+---
+
 # Project State
 
 **Project:** Fluorescence Cell Counter — Desktop App + Batch Management
 **Milestone:** v2.0
 **Branch:** local-ui
-**Last updated:** 2026-03-29 — Project initialized, planning complete
+**Last updated:** 2026-03-30 — Completed Plan 02-01 (App Scaffold + Image Display)
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-03-29)
 
 **Core value:** Scientists can analyze fluorescence images offline, save named batches, and return to re-examine or modify sessions without a web browser.
-**Current focus:** Phase 2 — Desktop GUI (not started)
+**Current focus:** Phase 02 — desktop-gui
 
 ## Current Position
 
+Phase: 02 (desktop-gui) — EXECUTING
+Plan: 2 of 3
 Planning complete. Ready to begin execution.
 
 Next step: `/gsd:plan-phase 2`
@@ -22,7 +37,7 @@ Next step: `/gsd:plan-phase 2`
 
 | Phase | Name | Status |
 |-------|------|--------|
-| 2 | Desktop GUI | ○ Pending |
+| 2 | Desktop GUI | ◐ In Progress (1/3 plans done) |
 | 3 | Batch Management | ○ Pending |
 
 ## Key Decisions Made in Planning
@@ -36,3 +51,8 @@ Next step: `/gsd:plan-phase 2`
 - Remove-from-manifest-only (no file delete) on image removal — prevents research data loss
 - All 9 parameters stored in manifest from day one (including tophat/adaptive params)
 - Entry point: `app.py` — `main.py` (Gradio web version) stays untouched
+
+## Decisions from Execution
+
+- Plan 02-01: qtbot required for all QImage/QPixmap tests — QApplication must be active before QImage construction (abort otherwise)
+- Plan 02-01: ScaledImageLabel stores _pixmap separately from QLabel.pixmap() to avoid Qt default scaling interference

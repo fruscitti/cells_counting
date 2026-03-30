@@ -17,7 +17,7 @@
 
 | Phase | Name | Plans | Status | Goal |
 |-------|------|-------|--------|------|
-| 2 | Desktop GUI | 3 | ○ Pending | PySide6 app with full analysis feature parity |
+| 2 | Desktop GUI | 1/3 | In Progress|  |
 | 3 | Batch Management | 2 | ○ Pending | Save, open, re-analyze, add/remove images |
 
 ---
@@ -38,10 +38,10 @@
 - Clear resets to defaults
 - Results table shows all filenames + counts
 
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 
 Plans:
-- [ ] 02-01-PLAN.md — App Scaffold + Image Display
+- [x] 02-01-PLAN.md — App Scaffold + Image Display
 - [ ] 02-02-PLAN.md — Parameter Controls + Analysis Engine
 - [ ] 02-03-PLAN.md — Manual Annotation + Clear + Polish
 

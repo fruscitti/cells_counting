@@ -9,16 +9,16 @@
 
 ### Application Shell
 
-- [ ] **APP-01**: Desktop window launches with `python app.py` (separate entry point from `main.py`)
-- [ ] **APP-02**: Window title shows "Cell Counter" with current batch name when one is open
-- [ ] **APP-03**: Application runs on Windows, macOS, and Linux without modification
-- [ ] **APP-04**: High-DPI displays render correctly on Windows (DPI scale policy set before QApplication init)
+- [x] **APP-01**: Desktop window launches with `python app.py` (separate entry point from `main.py`)
+- [x] **APP-02**: Window title shows "Cell Counter" with current batch name when one is open
+- [x] **APP-03**: Application runs on Windows, macOS, and Linux without modification
+- [x] **APP-04**: High-DPI displays render correctly on Windows (DPI scale policy set before QApplication init)
 
 ### Image Loading
 
-- [ ] **IMG-01**: User can open images via a file dialog (multi-select, filters: PNG/JPG/TIFF/BMP)
-- [ ] **IMG-02**: Loaded image filenames are listed in a sidebar/panel
-- [ ] **IMG-03**: User can select an image from the list to view it in the display area
+- [x] **IMG-01**: User can open images via a file dialog (multi-select, filters: PNG/JPG/TIFF/BMP)
+- [x] **IMG-02**: Loaded image filenames are listed in a sidebar/panel
+- [x] **IMG-03**: User can select an image from the list to view it in the display area
 
 ### Parameter Controls
 
@@ -35,8 +35,8 @@
 - [ ] **ANAL-01**: "Analyze" button runs `process_image()` on all loaded images with current parameters
 - [ ] **ANAL-02**: Processing runs in a background thread (QRunnable) — UI does not freeze
 - [ ] **ANAL-03**: Progress is indicated while analysis runs (progress bar or status label)
-- [ ] **ANAL-04**: Side-by-side display of original and annotated image for the selected image (aspect-ratio preserved, scales with window resize)
-- [ ] **ANAL-05**: Cell count displayed prominently for the selected image
+- [x] **ANAL-04**: Side-by-side display of original and annotated image for the selected image (aspect-ratio preserved, scales with window resize)
+- [x] **ANAL-05**: Cell count displayed prominently for the selected image
 - [ ] **ANAL-06**: Results table shows filename + cell count for all analyzed images
 - [ ] **ANAL-07**: "Auto-Optimize" button runs grid search on the selected image and updates sliders to best parameters
 
