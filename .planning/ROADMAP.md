@@ -38,6 +38,13 @@
 - Clear resets to defaults
 - Results table shows all filenames + counts
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — App Scaffold + Image Display
+- [ ] 02-02-PLAN.md — Parameter Controls + Analysis Engine
+- [ ] 02-03-PLAN.md — Manual Annotation + Clear + Polish
+
 #### Plan 2.1 — App Scaffold + Image Display
 
 **Covers:** APP-01–04, IMG-01–03, ANAL-04–05
