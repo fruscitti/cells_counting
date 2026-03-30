@@ -16,7 +16,7 @@ progress:
 **Project:** Fluorescence Cell Counter — Desktop App + Batch Management
 **Milestone:** v2.0
 **Branch:** local-ui
-**Last updated:** 2026-03-29 — Completed Plan 03-02 (Batch Mutations: Add/Remove/Re-Analyze/Export CSV)
+**Last updated:** 2026-03-30 — Completed quick task 260330-eto: Fix batch management (cell counts on open, save in-place, total row)
 
 ## Project Reference
 
@@ -71,3 +71,9 @@ Next step: Run `/gsd:verify-work` or `/gsd:transition`
 - Plan 03-02: _is_analyzing flag guards all batch mutation buttons (prevents Pitfall 3: manifest written mid-analysis)
 - Plan 03-02: status field stripped via img.pop("status", None) before every _atomic_write_manifest in new mutation methods
 - Plan 03-02: test_reanalyze_preserves_marks uses qtbot.waitUntil on _is_analyzing flag (Python method patching doesn't intercept Qt slot dispatch)
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260330-eto | Fix batch management: cell counts on open, save in-place, total row | 2026-03-30 | 73e6ff8 | [260330-eto-fix-batch-management-cell-counts-not-res](.planning/quick/260330-eto-fix-batch-management-cell-counts-not-res/) |
