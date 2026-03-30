@@ -23,19 +23,24 @@ Scientists can analyze fluorescence images offline, save their work as named bat
 
 ### Active
 
-- [ ] Desktop window GUI (PySide6/Qt) runs on Windows, macOS, Linux
-- [ ] All parameter sliders (brightness, min area, blur, max area) in desktop UI
-- [ ] Use cleaning checkbox in desktop UI
-- [ ] Open images via file dialog (single or multi-select)
-- [ ] Analyze and display original + annotated image pairs side by side
-- [ ] Results table with filename and cell count
-- [ ] Clear/reset button
 - [ ] Save current analysis as a named batch (folder structure + JSON manifest)
 - [ ] Open/browse existing batches from a batch list
 - [ ] Re-analyze a batch with new parameters
 - [ ] Add images to an existing batch
 - [ ] Remove images from an existing batch
 - [ ] Export batch results to CSV
+
+### Validated in Phase 2
+
+- ✓ Desktop window GUI (PySide6/Qt) runs on Windows, macOS, Linux — Validated in Phase 2: desktop-gui
+- ✓ All parameter sliders (brightness, min area, blur, max area, top-hat) in desktop UI — Validated in Phase 2: desktop-gui
+- ✓ Use cleaning checkbox in desktop UI — Validated in Phase 2: desktop-gui
+- ✓ Open images via file dialog (single or multi-select) — Validated in Phase 2: desktop-gui
+- ✓ Analyze and display original + annotated image pairs side by side — Validated in Phase 2: desktop-gui
+- ✓ Background analysis thread (UI stays responsive) — Validated in Phase 2: desktop-gui
+- ✓ Results table with filename and cell count — Validated in Phase 2: desktop-gui
+- ✓ Manual click-to-count annotation on annotated image with undo — Validated in Phase 2: desktop-gui
+- ✓ Clear/reset button — Validated in Phase 2: desktop-gui
 
 ### Out of Scope
 
@@ -65,10 +70,11 @@ Scientists can analyze fluorescence images offline, save their work as named bat
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| PySide6 over tkinter | Qt has native image widgets, proper sliders, and looks modern on all platforms | — Pending |
-| Reuse existing processing core | process_image() is well-tested; no need to rewrite | — Pending |
-| Folder structure over SQLite | Zero dependencies, human-readable, portable across OS | — Pending |
-| Separate branch from main | Keeps Gradio web version stable and shippable while desktop is built | — Pending |
+| PySide6 over tkinter | Qt has native image widgets, proper sliders, and looks modern on all platforms | ✓ Confirmed — Phase 2 |
+| Reuse existing processing core | process_image() is well-tested; no need to rewrite | ✓ Confirmed — analysis_core.py extracts functions cleanly |
+| Folder structure over SQLite | Zero dependencies, human-readable, portable across OS | — Pending (Phase 3) |
+| Separate branch from main | Keeps Gradio web version stable and shippable while desktop is built | ✓ Confirmed — local-ui branch |
+| analysis_core.py instead of importing main.py | main.py has module-level Gradio setup code that crashes desktop app on import | ✓ Confirmed — Phase 2 |
 
 ## Evolution
 
@@ -88,4 +94,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-29 after initialization*
+*Last updated: 2026-03-30 after Phase 2 completion — PySide6 desktop GUI complete*
