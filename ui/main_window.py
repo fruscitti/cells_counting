@@ -129,62 +129,12 @@ class MainWindow(QMainWindow):
         left_layout.setContentsMargins(0, 0, 0, 0)
         left_layout.setSpacing(6)
 
-        self.open_btn = QPushButton("Open Images")
-        left_layout.addWidget(self.open_btn)
-
         self.image_list = QListWidget()
         left_layout.addWidget(self.image_list)
 
         # Parameter control panel
         self.param_panel = ParamPanel()
         left_layout.addWidget(self.param_panel)
-
-        self.analyze_btn = QPushButton("Analyze")
-        self.analyze_btn.setEnabled(False)
-        left_layout.addWidget(self.analyze_btn)
-
-        self.auto_optimize_btn = QPushButton("Auto-Optimize")
-        self.auto_optimize_btn.setEnabled(False)
-        left_layout.addWidget(self.auto_optimize_btn)
-
-        self.clear_btn = QPushButton("Clear")
-        left_layout.addWidget(self.clear_btn)
-
-        self.save_batch_btn = QPushButton("Save Batch")
-        self.save_batch_btn.setEnabled(False)
-        left_layout.addWidget(self.save_batch_btn)
-
-        self.open_batch_btn = QPushButton("Open Batch")
-        left_layout.addWidget(self.open_batch_btn)
-
-        self.add_images_btn = QPushButton("Add Images")
-        self.add_images_btn.setEnabled(False)  # only when batch is open
-        left_layout.addWidget(self.add_images_btn)
-
-        self.remove_image_btn = QPushButton("Remove Image")
-        self.remove_image_btn.setEnabled(False)
-        left_layout.addWidget(self.remove_image_btn)
-
-        self.re_analyze_btn = QPushButton("Re-Analyze")
-        self.re_analyze_btn.setEnabled(False)
-        left_layout.addWidget(self.re_analyze_btn)
-
-        self.export_csv_btn = QPushButton("Export CSV")
-        self.export_csv_btn.setEnabled(False)
-        left_layout.addWidget(self.export_csv_btn)
-
-        self.undo_mark_btn = QPushButton("Undo Mark")
-        self.undo_mark_btn.setEnabled(False)
-        left_layout.addWidget(self.undo_mark_btn)
-
-        # Hide sidebar buttons — they will be re-surfaced by the toolbar in Phase 5 (per SIDE-03)
-        for _btn in [
-            self.open_btn, self.analyze_btn, self.auto_optimize_btn, self.clear_btn,
-            self.save_batch_btn, self.open_batch_btn, self.add_images_btn,
-            self.remove_image_btn, self.re_analyze_btn, self.export_csv_btn,
-            self.undo_mark_btn,
-        ]:
-            _btn.setVisible(False)
 
         self.progress_bar = QProgressBar()
         self.progress_bar.setVisible(False)
@@ -378,19 +328,8 @@ class MainWindow(QMainWindow):
         self.act_undo_mark.triggered.connect(self._on_undo_mark)
         self.act_clear.triggered.connect(self._on_clear)
 
-        self.open_btn.clicked.connect(self._on_open_images)
         self.image_list.currentItemChanged.connect(self._on_image_selected)
-        self.clear_btn.clicked.connect(self._on_clear)
-        self.analyze_btn.clicked.connect(self._on_analyze)
-        self.auto_optimize_btn.clicked.connect(self._on_auto_optimize)
         self.annotated_label.clicked.connect(self._on_annotated_click)
-        self.undo_mark_btn.clicked.connect(self._on_undo_mark)
-        self.save_batch_btn.clicked.connect(self._on_save_batch)
-        self.open_batch_btn.clicked.connect(self._on_open_batch)
-        self.add_images_btn.clicked.connect(self._on_add_images)
-        self.remove_image_btn.clicked.connect(self._on_remove_image)
-        self.re_analyze_btn.clicked.connect(self._on_re_analyze)
-        self.export_csv_btn.clicked.connect(self._on_export_csv)
         self.orig_zoom_in_btn.clicked.connect(self.original_label.zoom_in)
         self.orig_zoom_out_btn.clicked.connect(self.original_label.zoom_out)
         self.orig_zoom_reset_btn.clicked.connect(self.original_label.zoom_reset)
@@ -423,12 +362,12 @@ class MainWindow(QMainWindow):
             self._file_paths.append(path)
 
         if self._file_paths:
-            self.analyze_btn.setEnabled(True)
-            self.auto_optimize_btn.setEnabled(True)
+            self.act_analyze.setEnabled(True)
+            self.act_auto_optimize.setEnabled(True)
             # Select first item if nothing selected
             if self.image_list.currentRow() < 0:
                 self.image_list.setCurrentRow(0)
-        self._update_batch_buttons()
+        self._update_action_states()
         self._update_status_bar()
 
     # ---- Private slots ----
@@ -469,8 +408,8 @@ class MainWindow(QMainWindow):
             total = entry["algo_count"] + len(entry["manual_marks"])
             self.count_label.setText(f"Cell Count: {total}")
 
-        # Update undo button state
-        self.undo_mark_btn.setEnabled(len(entry["manual_marks"]) > 0)
+        # Update undo action state
+        self.act_undo_mark.setEnabled(len(entry["manual_marks"]) > 0)
 
     def _on_annotated_click(self, orig_x: int, orig_y: int):
         """MARK-01: Toggle algo marks or add manual marks at the clicked position."""
@@ -497,13 +436,13 @@ class MainWindow(QMainWindow):
             if (orig_x - mx) ** 2 + (orig_y - my) ** 2 <= self.CIRCLE_RADIUS ** 2:
                 entry["manual_marks"].pop(i)
                 self._redraw_annotated()
-                self.undo_mark_btn.setEnabled(bool(entry["manual_marks"]))
+                self.act_undo_mark.setEnabled(bool(entry["manual_marks"]))
                 return
 
         # 3. No hit — add new manual mark
         entry["manual_marks"].append((orig_x, orig_y))
         self._redraw_annotated()
-        self.undo_mark_btn.setEnabled(True)
+        self.act_undo_mark.setEnabled(True)
 
     def _on_undo_mark(self):
         """MARK-02: Remove the last manual mark and redraw."""
@@ -518,7 +457,7 @@ class MainWindow(QMainWindow):
         marks.pop()
         self._redraw_annotated()
         if not marks:
-            self.undo_mark_btn.setEnabled(False)
+            self.act_undo_mark.setEnabled(False)
 
     CIRCLE_RADIUS = 18
 
@@ -568,14 +507,14 @@ class MainWindow(QMainWindow):
         # Reset parameters to defaults
         self.param_panel.reset_defaults()
 
-        # Disable action buttons
-        self.analyze_btn.setEnabled(False)
-        self.auto_optimize_btn.setEnabled(False)
-        self.undo_mark_btn.setEnabled(False)
+        # Disable actions
+        self.act_analyze.setEnabled(False)
+        self.act_auto_optimize.setEnabled(False)
+        self.act_undo_mark.setEnabled(False)
 
         # Reset window title
         self.setWindowTitle("Cell Counter")
-        self._update_batch_buttons()
+        self._update_action_states()
         self._update_status_bar()
 
     # ---- Analysis worker slots ----
@@ -590,9 +529,9 @@ class MainWindow(QMainWindow):
             return
         from workers.analysis_worker import AnalysisWorker
         self._is_analyzing = True
-        self._disable_batch_buttons_during_analysis()
-        self.analyze_btn.setEnabled(False)
-        self.auto_optimize_btn.setEnabled(False)
+        self._disable_actions_during_analysis()
+        self.act_analyze.setEnabled(False)
+        self.act_auto_optimize.setEnabled(False)
         self.progress_bar.setMaximum(len(self._images))
         self.progress_bar.setValue(0)
         self.progress_bar.setVisible(True)
@@ -628,13 +567,13 @@ class MainWindow(QMainWindow):
         self.status_label.setText(f"Processing {current}/{total}...")
 
     def _on_analysis_finished(self):
-        """Re-enable buttons and hide progress bar when analysis completes."""
+        """Re-enable actions and hide progress bar when analysis completes."""
         self._is_analyzing = False
-        self.analyze_btn.setEnabled(True)
-        self.auto_optimize_btn.setEnabled(True)
+        self.act_analyze.setEnabled(True)
+        self.act_auto_optimize.setEnabled(True)
         self.progress_bar.setVisible(False)
         self.status_label.setText("Analysis complete")
-        self._update_batch_buttons()
+        self._update_action_states()
 
     def _update_results_row(self, filename: str, count: int, is_error: bool = False):
         """Update or insert a row in the results table for the given filename."""
@@ -693,7 +632,7 @@ class MainWindow(QMainWindow):
             return
         from workers.optimize_worker import OptimizeWorker
         img_bgr = self._images[self._current_file]["original_bgr"]
-        self.auto_optimize_btn.setEnabled(False)
+        self.act_auto_optimize.setEnabled(False)
         self.status_label.setText("Optimizing...")
 
         worker = OptimizeWorker(img_bgr, self.param_panel.get_params()["use_cleaning"])
@@ -702,7 +641,7 @@ class MainWindow(QMainWindow):
             lambda msg: self.status_label.setText(f"Optimize error: {msg}")
         )
         worker.signals.finished.connect(
-            lambda: self.auto_optimize_btn.setEnabled(True)
+            lambda: self.act_auto_optimize.setEnabled(True)
         )
         QThreadPool.globalInstance().start(worker)
 
@@ -719,24 +658,24 @@ class MainWindow(QMainWindow):
 
     # ---- Batch management slots ----
 
-    def _update_batch_buttons(self):
-        """Enable/disable batch buttons based on state."""
+    def _update_action_states(self):
+        """Enable/disable actions based on current application state (D-13)."""
         has_images = bool(self._images)
         is_open = self._current_batch_dir is not None
         is_analyzing = getattr(self, '_is_analyzing', False)
-        self.save_batch_btn.setEnabled(has_images and not is_analyzing)
-        self.add_images_btn.setEnabled(is_open and not is_analyzing)
-        self.remove_image_btn.setEnabled(is_open and self._current_file is not None and not is_analyzing)
-        self.re_analyze_btn.setEnabled(is_open and has_images and not is_analyzing)
-        self.export_csv_btn.setEnabled(is_open and not is_analyzing)
+        self.act_save_batch.setEnabled(has_images and not is_analyzing)
+        self.act_add_images.setEnabled(is_open and not is_analyzing)
+        self.act_remove_image.setEnabled(is_open and self._current_file is not None and not is_analyzing)
+        self.act_re_analyze.setEnabled(is_open and has_images and not is_analyzing)
+        self.act_export_csv.setEnabled(is_open and not is_analyzing)
 
-    def _disable_batch_buttons_during_analysis(self):
-        """Disable all batch mutation buttons while analysis is running."""
-        self.save_batch_btn.setEnabled(False)
-        self.add_images_btn.setEnabled(False)
-        self.remove_image_btn.setEnabled(False)
-        self.re_analyze_btn.setEnabled(False)
-        self.export_csv_btn.setEnabled(False)
+    def _disable_actions_during_analysis(self):
+        """Disable all batch mutation actions while analysis is running."""
+        self.act_save_batch.setEnabled(False)
+        self.act_add_images.setEnabled(False)
+        self.act_remove_image.setEnabled(False)
+        self.act_re_analyze.setEnabled(False)
+        self.act_export_csv.setEnabled(False)
 
     def _on_save_batch(self):
         """Save current session as a named batch.
@@ -825,8 +764,8 @@ class MainWindow(QMainWindow):
             self._update_results_row(filename, total)
 
         if self._images:
-            self.analyze_btn.setEnabled(True)
-            self.auto_optimize_btn.setEnabled(True)
+            self.act_analyze.setEnabled(True)
+            self.act_auto_optimize.setEnabled(True)
             if self.image_list.currentRow() < 0:
                 self.image_list.setCurrentRow(0)
 
@@ -840,7 +779,7 @@ class MainWindow(QMainWindow):
         batch_name = manifest.get("name", batch_dir.name)
         self.setWindowTitle(f"Cell Counter — {batch_name}")
         self.status_label.setText(f"Batch opened: {batch_name}")
-        self._update_batch_buttons()
+        self._update_action_states()
         self._update_status_bar()
 
     def _on_add_images(self):
@@ -865,9 +804,9 @@ class MainWindow(QMainWindow):
             }
             self.image_list.addItem(fn)
         if added:
-            self.analyze_btn.setEnabled(True)
-            self.auto_optimize_btn.setEnabled(True)
-        self._update_batch_buttons()
+            self.act_analyze.setEnabled(True)
+            self.act_auto_optimize.setEnabled(True)
+        self._update_action_states()
 
     def _on_remove_image(self):
         """Remove the currently selected image from the batch manifest (file stays on disk)."""
@@ -889,7 +828,7 @@ class MainWindow(QMainWindow):
         self.annotated_label.clearPixmap()
         self.annotated_label.setText("Annotated")
         self.count_label.setText("Cell Count: 0")
-        self._update_batch_buttons()
+        self._update_action_states()
         self._update_status_bar()
 
     def _on_re_analyze(self):
@@ -901,9 +840,9 @@ class MainWindow(QMainWindow):
         self._marks_backup = {fn: list(entry["manual_marks"]) for fn, entry in self._images.items()}
         params = self._collect_params()
         self._is_analyzing = True
-        self._disable_batch_buttons_during_analysis()
-        self.analyze_btn.setEnabled(False)
-        self.auto_optimize_btn.setEnabled(False)
+        self._disable_actions_during_analysis()
+        self.act_analyze.setEnabled(False)
+        self.act_auto_optimize.setEnabled(False)
         self.progress_bar.setMaximum(len(self._images))
         self.progress_bar.setValue(0)
         self.progress_bar.setVisible(True)
@@ -931,15 +870,15 @@ class MainWindow(QMainWindow):
         self._update_status_bar()
 
     def _on_reanalyze_finished(self):
-        """Handle re-analysis completion: update manifest and restore button state."""
+        """Handle re-analysis completion: update manifest and restore action state."""
         self._is_analyzing = False
         self._marks_backup = {}
-        self.analyze_btn.setEnabled(True)
-        self.auto_optimize_btn.setEnabled(True)
+        self.act_analyze.setEnabled(True)
+        self.act_auto_optimize.setEnabled(True)
         self.progress_bar.setVisible(False)
         # Update manifest with new results
         BatchManager.update_manifest(self._current_batch_dir, self._images, self._collect_params())
-        self._update_batch_buttons()
+        self._update_action_states()
         self.statusBar().showMessage("Re-analysis complete", 3000)
         self.status_label.setText("Re-analysis complete")
 
