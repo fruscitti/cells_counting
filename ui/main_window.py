@@ -474,11 +474,19 @@ class MainWindow(QMainWindow):
         self.export_csv_btn.setEnabled(False)
 
     def _on_save_batch(self):
-        """Save current session as a named batch."""
+        """Save current session as a named batch.
+
+        If a batch is already open, overwrites it in-place without prompting.
+        Otherwise, prompts for a batch name and saves to a new directory.
+        """
+        params = self.param_panel.get_params()
+        if self._current_batch_dir is not None:
+            BatchManager.update_manifest(self._current_batch_dir, self._images, params)
+            self.statusBar().showMessage("Batch saved", 2500)
+            return
         name, ok = QInputDialog.getText(self, "Save Batch", "Batch name:")
         if not ok or not name.strip():
             return
-        params = self.param_panel.get_params()
         batch_dir = BatchManager.save_batch(name.strip(), self._images, params)
         self._current_batch_dir = batch_dir
         self.setWindowTitle(f"Cell Counter — {name.strip()}")
