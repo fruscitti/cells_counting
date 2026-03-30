@@ -23,12 +23,16 @@ Scientists can analyze fluorescence images offline, save their work as named bat
 
 ### Active
 
-- [ ] Save current analysis as a named batch (folder structure + JSON manifest)
-- [ ] Open/browse existing batches from a batch list
-- [ ] Re-analyze a batch with new parameters
-- [ ] Add images to an existing batch
-- [ ] Remove images from an existing batch
-- [ ] Export batch results to CSV
+*(none — all v2.0 requirements validated)*
+
+### Validated in Phase 3
+
+- ✓ Save current analysis as a named batch (folder structure + JSON manifest) — Validated in Phase 3: batch-management
+- ✓ Open/browse existing batches from a batch list — Validated in Phase 3: batch-management
+- ✓ Re-analyze a batch with new parameters, preserving manual marks — Validated in Phase 3: batch-management
+- ✓ Add images to an existing batch — Validated in Phase 3: batch-management
+- ✓ Remove images from an existing batch (manifest only, no file delete) — Validated in Phase 3: batch-management
+- ✓ Export batch results to CSV — Validated in Phase 3: batch-management
 
 ### Validated in Phase 2
 
@@ -72,7 +76,7 @@ Scientists can analyze fluorescence images offline, save their work as named bat
 |----------|-----------|---------|
 | PySide6 over tkinter | Qt has native image widgets, proper sliders, and looks modern on all platforms | ✓ Confirmed — Phase 2 |
 | Reuse existing processing core | process_image() is well-tested; no need to rewrite | ✓ Confirmed — analysis_core.py extracts functions cleanly |
-| Folder structure over SQLite | Zero dependencies, human-readable, portable across OS | — Pending (Phase 3) |
+| Folder structure over SQLite | Zero dependencies, human-readable, portable across OS | ✓ Confirmed — Phase 3 |
 | Separate branch from main | Keeps Gradio web version stable and shippable while desktop is built | ✓ Confirmed — local-ui branch |
 | analysis_core.py instead of importing main.py | main.py has module-level Gradio setup code that crashes desktop app on import | ✓ Confirmed — Phase 2 |
 
@@ -94,4 +98,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-30 after Phase 2 completion — PySide6 desktop GUI complete*
+*Last updated: 2026-03-29 after Phase 3 completion — Batch Management complete; v2.0 milestone feature-complete*
