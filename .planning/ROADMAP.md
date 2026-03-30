@@ -175,7 +175,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 05-01-PLAN.md — Create QActions, menu bar, toolbar; migrate enable/disable from buttons to actions
+- [x] 05-01-PLAN.md — Create QActions, menu bar, toolbar; migrate enable/disable from buttons to actions
 
 ### Phase 6: Cleanup and Shortcuts
 **Goal**: Users can operate the full application by keyboard alone for common actions, and the left panel shows only the image list and parameters with no redundant buttons

@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: — Fluorescence Cell Counter Web App
-status: planning
-last_updated: "2026-03-30T22:21:24.119Z"
+status: verifying
+last_updated: "2026-03-30T23:09:58.704Z"
 last_activity: 2026-03-30
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 7
-  completed_plans: 7
+  total_phases: 4
+  completed_phases: 4
+  total_plans: 8
+  completed_plans: 8
 ---
 
 # Project State
@@ -24,17 +24,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-30)
 
 **Core value:** Scientists can analyze fluorescence images offline, save named batches, and return to re-examine or modify sessions without a web browser.
-**Current focus:** Phase 4 — Layout Foundation (resizable sidebar + status bar)
+**Current focus:** Phase 05 — actions-surface
 
 ## Current Position
 
-Phase: 04
-Plan: Not started
-Status: Roadmap defined, ready to plan Phase 4
-Last activity: 2026-03-30
+Phase: 05 (actions-surface) — COMPLETE (1/1 plans done)
+Plan: 1 of 1 — COMPLETE
+Status: Phase 05 complete — ready for verification
+Last activity: 2026-03-30 -- Phase 05 plan 01 execution complete
 
 ```
-v3.0 Progress: [░░░░░░░░░░] 0% (0/3 phases complete)
+v3.0 Progress: [████░░░░░░] ~33% (1/3 phases complete)
 ```
 
 ## Phase Status
@@ -43,8 +43,8 @@ v3.0 Progress: [░░░░░░░░░░] 0% (0/3 phases complete)
 |-------|------|--------|
 | 2 | Desktop GUI | ● Complete (3/3 plans done) |
 | 3 | Batch Management | ● Complete (2/2 plans done) |
-| 4 | Layout Foundation | ○ Not started |
-| 5 | Actions Surface | ○ Not started |
+| 4 | Layout Foundation | ● Complete (2/2 plans done) |
+| 5 | Actions Surface | ● Complete (1/1 plans done) |
 | 6 | Cleanup and Shortcuts | ○ Not started |
 
 ## Key Decisions Made in Planning
@@ -61,6 +61,9 @@ v3.0 Progress: [░░░░░░░░░░] 0% (0/3 phases complete)
 
 ## Decisions from Execution
 
+- Plan 05-01: QAction.MenuRole.NoRole applied to all 12 custom actions — prevents macOS menu role hijacking (D-04)
+- Plan 05-01: _update_batch_buttons renamed to _update_action_states; _disable_batch_buttons_during_analysis renamed to _disable_actions_during_analysis (D-13)
+- Plan 05-01: window fixture added to conftest.py as alias for main_window — cleaner Phase 5 test names
 - Plan 02-01: qtbot required for all QImage/QPixmap tests — QApplication must be active before QImage construction (abort otherwise)
 - Plan 02-01: ScaledImageLabel stores _pixmap separately from QLabel.pixmap() to avoid Qt default scaling interference
 - Plan 02-02: analysis_core.py isolates pure functions to avoid Gradio module-level side effects when imported by desktop app

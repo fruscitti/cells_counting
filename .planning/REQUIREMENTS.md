@@ -78,16 +78,16 @@
 
 ### Menu Bar
 
-- [ ] **MENU-01**: User can access Open Images, Open Batch, Save Batch, Export CSV, and Exit from a File menu
-- [ ] **MENU-02**: User can access Add Images, Remove Image, and Re-Analyze from a Batch menu
-- [ ] **MENU-03**: User can access Analyze, Auto-Optimize, Undo Mark, and Clear All from an Analysis menu
-- [ ] **MENU-04**: All menu items reflect the same enabled/disabled state as their corresponding toolbar action
+- [x] **MENU-01**: User can access Open Images, Open Batch, Save Batch, Export CSV, and Exit from a File menu
+- [x] **MENU-02**: User can access Add Images, Remove Image, and Re-Analyze from a Batch menu
+- [x] **MENU-03**: User can access Analyze, Auto-Optimize, Undo Mark, and Clear All from an Analysis menu
+- [x] **MENU-04**: All menu items reflect the same enabled/disabled state as their corresponding toolbar action
 
 ### Toolbar
 
-- [ ] **TOOL-01**: User can trigger Analyze, Auto-Optimize, Undo Mark, and Clear All from a persistent toolbar
-- [ ] **TOOL-02**: Toolbar is non-movable and cannot be hidden via right-click
-- [ ] **TOOL-03**: Toolbar buttons and menu items share the same QAction (single enable/disable source of truth)
+- [x] **TOOL-01**: User can trigger Analyze, Auto-Optimize, Undo Mark, and Clear All from a persistent toolbar
+- [x] **TOOL-02**: Toolbar is non-movable and cannot be hidden via right-click
+- [x] **TOOL-03**: Toolbar buttons and menu items share the same QAction (single enable/disable source of truth)
 
 ### Sidebar
 
@@ -155,13 +155,13 @@
 | STAT-02 | Phase 4 | Complete |
 | STAT-03 | Phase 4 | Complete |
 | STAT-04 | Phase 4 | Complete |
-| MENU-01 | Phase 5 | Pending |
-| MENU-02 | Phase 5 | Pending |
-| MENU-03 | Phase 5 | Pending |
-| MENU-04 | Phase 5 | Pending |
-| TOOL-01 | Phase 5 | Pending |
-| TOOL-02 | Phase 5 | Pending |
-| TOOL-03 | Phase 5 | Pending |
+| MENU-01 | Phase 5 | Complete |
+| MENU-02 | Phase 5 | Complete |
+| MENU-03 | Phase 5 | Complete |
+| MENU-04 | Phase 5 | Complete |
+| TOOL-01 | Phase 5 | Complete |
+| TOOL-02 | Phase 5 | Complete |
+| TOOL-03 | Phase 5 | Complete |
 | KEYS-01 | Phase 6 | Pending |
 | KEYS-02 | Phase 6 | Pending |
 | KEYS-03 | Phase 6 | Pending |
