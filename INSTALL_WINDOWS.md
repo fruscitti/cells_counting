@@ -1,10 +1,10 @@
 # Cell Counter — Windows Installation Guide
 
-Follow these steps in order. Each step includes screenshots descriptions so you know what to expect.
-
 ---
 
-## Step 1 — Download the app
+## Quick install (recommended)
+
+### Step 1 — Download the app
 
 1. Open your web browser and go to:
    ```
@@ -14,94 +14,83 @@ Follow these steps in order. Each step includes screenshots descriptions so you 
 3. Open File Explorer and go to your **Downloads** folder.
 4. Right-click **local-ui.zip** → **Extract All…**
 5. Choose a destination folder, for example `C:\CellCounter`, then click **Extract**.
-6. You should now have a folder called `cells_counting-local-ui` inside your chosen location.
+6. You will now have a folder called `cells_counting-local-ui` inside your chosen location.
+
+### Step 2 — Run the setup script
+
+1. Open the `cells_counting-local-ui` folder in File Explorer.
+2. Double-click **setup.bat**.
+3. If Windows shows a blue warning ("Windows protected your PC"), click **More info** → **Run anyway**.
+4. A terminal window will open and install everything automatically. This may take a few minutes.
+5. When you see **"Setup complete!"**, press any key to close the window.
+
+### Step 3 — Launch the app
+
+Double-click **run.bat** inside the same folder.
+
+> Next time you want to open the app, just double-click **run.bat** — no setup needed again.
 
 ---
 
-## Step 2 — Install Python 3.11
+## Manual install (alternative)
+
+Use this only if the setup script did not work.
+
+### Step 1 — Download the app
+
+Same as above.
+
+### Step 2 — Install Python 3.11
 
 1. Open your web browser and go to:
    ```
    https://www.python.org/downloads/release/python-3119/
    ```
-2. Scroll down to **Files** and click **Windows installer (64-bit)** to download it.
+2. Scroll down to **Files** and click **Windows installer (64-bit)**.
 3. Run the installer (`python-3.11.9-amd64.exe`).
-4. **Important:** On the first screen, check the box **"Add python.exe to PATH"** at the bottom before clicking anything else.
-5. Click **Install Now** and wait for it to finish.
-6. Click **Close** when done.
+4. **Important:** On the first screen, check **"Add python.exe to PATH"** before clicking anything else.
+5. Click **Install Now** and wait for it to finish, then click **Close**.
 
----
+### Step 3 — Open a terminal in the app folder
 
-## Step 3 — Open a terminal in the app folder
+1. Open File Explorer and navigate to the `cells_counting-local-ui` folder.
+2. Click on the address bar at the top (it shows the folder path).
+3. Type `cmd` and press **Enter**. A terminal window will open in that folder.
 
-1. Open **File Explorer** and navigate to the folder you extracted in Step 1
-   (e.g. `C:\CellCounter\cells_counting-local-ui`).
-2. Click on the address bar at the top of File Explorer (it shows the folder path).
-3. Type `cmd` and press **Enter**. A black terminal window will open in that folder.
+### Step 4 — Install dependencies
 
----
+Type each command below and press **Enter** after each one:
 
-## Step 4 — Install dependencies
-
-Copy and paste each command below into the terminal, pressing **Enter** after each one.
-
-**Create a virtual environment:**
 ```
 python -m venv .venv
-```
-
-**Activate the virtual environment:**
-```
 .venv\Scripts\activate
-```
-
-You should see `(.venv)` appear at the start of the line — this means it is active.
-
-**Install required packages:**
-```
 pip install PySide6 opencv-python pandas numpy
 ```
 
-This will download and install everything needed. It may take a few minutes depending on your internet connection.
-
----
-
-## Step 5 — Run the app
-
-In the same terminal window (with `(.venv)` still visible), type:
+### Step 5 — Run the app
 
 ```
 python app.py
 ```
 
-The Cell Counter window will open.
-
----
-
-## Running the app again later
-
-You do not need to repeat Steps 1–4. Next time:
-
-1. Open **File Explorer**, navigate to the app folder.
-2. Click the address bar, type `cmd`, press **Enter**.
-3. In the terminal, run:
-   ```
-   .venv\Scripts\activate
-   python app.py
-   ```
-
 ---
 
 ## Troubleshooting
 
+**Blue "Windows protected your PC" warning on setup.bat**
+Click **More info** → **Run anyway**. This appears because the file was downloaded from the internet.
+
 **"python is not recognized as a command"**
-Python was not added to PATH. Uninstall Python and reinstall it, making sure to check **"Add python.exe to PATH"** on the first screen.
+Python was not added to PATH. Uninstall Python and reinstall it, making sure to check **"Add python.exe to PATH"** on the first screen of the installer.
+
+**setup.bat closes immediately without doing anything**
+Right-click **setup.bat** → **Run as administrator** and try again.
 
 **"pip install" fails with a network error**
-Check your internet connection and try again. If you are behind a corporate proxy, contact your IT department.
+Check your internet connection and try again. If you are on a corporate network, contact your IT department.
 
 **The app opens but shows an error about a missing file**
-Make sure you are running `python app.py` from inside the `cells_counting-local-ui` folder (Step 3).
+Make sure `run.bat` and `setup.bat` are inside the `cells_counting-local-ui` folder, not moved elsewhere.
 
 **The window opens but images do not load**
-Only `.tif`, `.tiff`, `.png`, and `.jpg` files are supported. Make sure your images are in one of these formats.
+Only `.tif`, `.tiff`, `.png`, and `.jpg` files are supported.
