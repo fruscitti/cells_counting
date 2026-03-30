@@ -172,8 +172,10 @@ Plans:
   3. Analysis menu contains Analyze, Auto-Optimize, Undo Mark, and Clear All; all are reachable by clicking
   4. Toolbar shows Analyze, Auto-Optimize, Undo Mark, and Clear All as persistent one-click buttons that cannot be hidden or moved
   5. When a menu item is grayed out, the corresponding toolbar button is also grayed out (and vice versa) — they always match
-**Plans**: TBD
-**UI hint**: yes
+**Plans**: 1 plan
+
+Plans:
+- [ ] 05-01-PLAN.md — Create QActions, menu bar, toolbar; migrate enable/disable from buttons to actions
 
 ### Phase 6: Cleanup and Shortcuts
 **Goal**: Users can operate the full application by keyboard alone for common actions, and the left panel shows only the image list and parameters with no redundant buttons
@@ -191,7 +193,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 4. Layout Foundation | 2/2 | Complete | 2026-03-30 |
-| 5. Actions Surface | 0/? | Not started | - |
+| 5. Actions Surface | 0/1 | In Progress | - |
 | 6. Cleanup and Shortcuts | 0/? | Not started | - |
 
 ---
