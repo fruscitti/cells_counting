@@ -70,3 +70,93 @@ def test_save_batch_btn_enabled_after_load(qtbot, tmp_path):
     w.load_images([img_path])
 
     assert w.save_batch_btn.isEnabled(), "button should be enabled after loading images"
+
+
+# ---- New tests for Plan 02 batch mutation buttons ----
+
+def test_add_images_btn_disabled_no_batch(main_window):
+    """Add Images button is disabled when no batch is open."""
+    assert hasattr(main_window, "add_images_btn"), "add_images_btn should exist"
+    assert not main_window.add_images_btn.isEnabled(), \
+        "add_images_btn should be disabled when no batch is open"
+
+
+def test_remove_image_btn_disabled_no_batch(main_window):
+    """Remove Image button is disabled when no batch is open."""
+    assert hasattr(main_window, "remove_image_btn"), "remove_image_btn should exist"
+    assert not main_window.remove_image_btn.isEnabled(), \
+        "remove_image_btn should be disabled when no batch is open"
+
+
+def test_re_analyze_btn_disabled_no_batch(main_window):
+    """Re-Analyze button is disabled when no batch is open."""
+    assert hasattr(main_window, "re_analyze_btn"), "re_analyze_btn should exist"
+    assert not main_window.re_analyze_btn.isEnabled(), \
+        "re_analyze_btn should be disabled when no batch is open"
+
+
+def test_export_csv_btn_disabled_no_batch(main_window):
+    """Export CSV button is disabled when no batch is open."""
+    assert hasattr(main_window, "export_csv_btn"), "export_csv_btn should exist"
+    assert not main_window.export_csv_btn.isEnabled(), \
+        "export_csv_btn should be disabled when no batch is open"
+
+
+def test_reanalyze_preserves_marks(qtbot, tmp_path):
+    """Re-Analyze re-runs analysis but preserves existing manual marks."""
+    import cv2
+    from pathlib import Path
+    from ui.main_window import MainWindow
+    from batch_manager import BatchManager
+    from workers.analysis_worker import AnalysisWorker
+
+    PARAMS = {
+        "brightness_threshold": 120,
+        "min_cell_area": 25,
+        "blur_strength": 9,
+        "max_cell_area": 500,
+        "use_cleaning": True,
+        "use_tophat": False,
+        "tophat_kernel": 50,
+        "adaptive_block": 99,
+        "adaptive_c": -5,
+    }
+
+    # Set up a tmp batch
+    BatchManager.BATCHES_ROOT = tmp_path / "batches"
+
+    # Create a test image file
+    img_bgr = np.zeros((50, 50, 3), dtype=np.uint8)
+    img_path = str(tmp_path / "test_img.png")
+    cv2.imwrite(img_path, img_bgr)
+
+    w = MainWindow()
+    qtbot.addWidget(w)
+
+    # Load the image
+    w.load_images([img_path])
+    # Add manual marks
+    w._images["test_img.png"]["manual_marks"] = [(10, 20), (30, 40)]
+    # Simulate an annotated image so redraw doesn't fail
+    w._images["test_img.png"]["annotated_rgb"] = np.zeros((50, 50, 3), dtype=np.uint8)
+
+    # Save batch so _current_batch_dir is set
+    batch_dir = BatchManager.save_batch("test-reanalyze", w._images, PARAMS)
+    w._current_batch_dir = batch_dir
+    w._update_batch_buttons()
+
+    # Verify re_analyze_btn is enabled
+    assert w.re_analyze_btn.isEnabled(), "re_analyze_btn should be enabled when batch is open"
+
+    original_marks = list(w._images["test_img.png"]["manual_marks"])
+
+    # Intercept _on_reanalyze_finished by capturing when _marks_backup is reset
+    # We start re-analyze and use qtbot.waitUntil to poll state
+    w._on_re_analyze()
+
+    # Wait until re-analyze has finished (is_analyzing goes back to False)
+    qtbot.waitUntil(lambda: not getattr(w, '_is_analyzing', True), timeout=10000)
+
+    marks_after = w._images["test_img.png"]["manual_marks"]
+    assert marks_after == original_marks, \
+        f"manual marks should be preserved after re-analyze, got {marks_after}"

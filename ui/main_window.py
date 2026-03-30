@@ -78,6 +78,22 @@ class MainWindow(QMainWindow):
         self.open_batch_btn = QPushButton("Open Batch")
         left_layout.addWidget(self.open_batch_btn)
 
+        self.add_images_btn = QPushButton("Add Images")
+        self.add_images_btn.setEnabled(False)  # only when batch is open
+        left_layout.addWidget(self.add_images_btn)
+
+        self.remove_image_btn = QPushButton("Remove Image")
+        self.remove_image_btn.setEnabled(False)
+        left_layout.addWidget(self.remove_image_btn)
+
+        self.re_analyze_btn = QPushButton("Re-Analyze")
+        self.re_analyze_btn.setEnabled(False)
+        left_layout.addWidget(self.re_analyze_btn)
+
+        self.export_csv_btn = QPushButton("Export CSV")
+        self.export_csv_btn.setEnabled(False)
+        left_layout.addWidget(self.export_csv_btn)
+
         self.undo_mark_btn = QPushButton("Undo Mark")
         self.undo_mark_btn.setEnabled(False)
         left_layout.addWidget(self.undo_mark_btn)
@@ -147,6 +163,10 @@ class MainWindow(QMainWindow):
         self.undo_mark_btn.clicked.connect(self._on_undo_mark)
         self.save_batch_btn.clicked.connect(self._on_save_batch)
         self.open_batch_btn.clicked.connect(self._on_open_batch)
+        self.add_images_btn.clicked.connect(self._on_add_images)
+        self.remove_image_btn.clicked.connect(self._on_remove_image)
+        self.re_analyze_btn.clicked.connect(self._on_re_analyze)
+        self.export_csv_btn.clicked.connect(self._on_export_csv)
 
     # ---- Public API ----
 
@@ -303,6 +323,8 @@ class MainWindow(QMainWindow):
         if not self._images:
             return
         from workers.analysis_worker import AnalysisWorker
+        self._is_analyzing = True
+        self._disable_batch_buttons_during_analysis()
         self.analyze_btn.setEnabled(False)
         self.auto_optimize_btn.setEnabled(False)
         self.progress_bar.setMaximum(len(self._images))
@@ -338,10 +360,12 @@ class MainWindow(QMainWindow):
 
     def _on_analysis_finished(self):
         """Re-enable buttons and hide progress bar when analysis completes."""
+        self._is_analyzing = False
         self.analyze_btn.setEnabled(True)
         self.auto_optimize_btn.setEnabled(True)
         self.progress_bar.setVisible(False)
         self.status_label.setText("Analysis complete")
+        self._update_batch_buttons()
 
     def _update_results_row(self, filename: str, count: int, is_error: bool = False):
         """Update or insert a row in the results table for the given filename."""
@@ -393,8 +417,23 @@ class MainWindow(QMainWindow):
     # ---- Batch management slots ----
 
     def _update_batch_buttons(self):
-        """Enable/disable Save Batch button based on whether images are loaded."""
-        self.save_batch_btn.setEnabled(bool(self._images))
+        """Enable/disable batch buttons based on state."""
+        has_images = bool(self._images)
+        is_open = self._current_batch_dir is not None
+        is_analyzing = getattr(self, '_is_analyzing', False)
+        self.save_batch_btn.setEnabled(has_images and not is_analyzing)
+        self.add_images_btn.setEnabled(is_open and not is_analyzing)
+        self.remove_image_btn.setEnabled(is_open and self._current_file is not None and not is_analyzing)
+        self.re_analyze_btn.setEnabled(is_open and has_images and not is_analyzing)
+        self.export_csv_btn.setEnabled(is_open and not is_analyzing)
+
+    def _disable_batch_buttons_during_analysis(self):
+        """Disable all batch mutation buttons while analysis is running."""
+        self.save_batch_btn.setEnabled(False)
+        self.add_images_btn.setEnabled(False)
+        self.remove_image_btn.setEnabled(False)
+        self.re_analyze_btn.setEnabled(False)
+        self.export_csv_btn.setEnabled(False)
 
     def _on_save_batch(self):
         """Save current session as a named batch."""
@@ -487,3 +526,112 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(f"Cell Counter — {batch_name}")
         self.status_label.setText(f"Batch opened: {batch_name}")
         self._update_batch_buttons()
+
+    def _on_add_images(self):
+        """Add new images to the currently open batch."""
+        if self._current_batch_dir is None:
+            return
+        paths, _ = QFileDialog.getOpenFileNames(self, "Add Images", "", self.get_file_filter())
+        if not paths:
+            return
+        from pathlib import Path as _Path
+        added = BatchManager.add_images(self._current_batch_dir, paths)
+        # Load each added image into self._images
+        for fn in added:
+            img_path = self._current_batch_dir / fn
+            bgr = cv2.imread(str(img_path))
+            if bgr is None:
+                continue
+            rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
+            self._images[fn] = {
+                "original_bgr": bgr, "original_rgb": rgb,
+                "annotated_rgb": None, "algo_count": 0, "manual_marks": [],
+            }
+            self.image_list.addItem(fn)
+        if added:
+            self.analyze_btn.setEnabled(True)
+            self.auto_optimize_btn.setEnabled(True)
+        self._update_batch_buttons()
+
+    def _on_remove_image(self):
+        """Remove the currently selected image from the batch manifest (file stays on disk)."""
+        if self._current_batch_dir is None or self._current_file is None:
+            return
+        fn = self._current_file
+        BatchManager.remove_image(self._current_batch_dir, fn)
+        # Remove from _images dict
+        self._images.pop(fn, None)
+        # Remove from image_list widget
+        for i in range(self.image_list.count()):
+            if self.image_list.item(i).text() == fn:
+                self.image_list.takeItem(i)
+                break
+        self._current_file = None
+        # Clear display
+        self.original_label.clearPixmap()
+        self.original_label.setText("Original")
+        self.annotated_label.clearPixmap()
+        self.annotated_label.setText("Annotated")
+        self.count_label.setText("Cell Count: 0")
+        self._update_batch_buttons()
+
+    def _on_re_analyze(self):
+        """Re-analyze all batch images with current parameters, preserving manual marks."""
+        if self._current_batch_dir is None or not self._images:
+            return
+        from workers.analysis_worker import AnalysisWorker
+        # Back up manual marks BEFORE re-analysis (BMGR-06: marks preserved)
+        self._marks_backup = {fn: list(entry["manual_marks"]) for fn, entry in self._images.items()}
+        params = self._collect_params()
+        self._is_analyzing = True
+        self._disable_batch_buttons_during_analysis()
+        self.analyze_btn.setEnabled(False)
+        self.auto_optimize_btn.setEnabled(False)
+        self.progress_bar.setMaximum(len(self._images))
+        self.progress_bar.setValue(0)
+        self.progress_bar.setVisible(True)
+        self.status_label.setText("Re-analyzing...")
+        worker = AnalysisWorker(self._images, params)
+        worker.signals.image_done.connect(self._on_reanalyze_image_done)
+        worker.signals.progress.connect(self._on_progress)
+        worker.signals.finished.connect(self._on_reanalyze_finished)
+        worker.signals.error.connect(self._on_image_error)
+        QThreadPool.globalInstance().start(worker)
+
+    def _on_reanalyze_image_done(self, filename: str, annotated_rgb, count: int):
+        """Handle completion of a single image during re-analysis."""
+        self._images[filename]["annotated_rgb"] = annotated_rgb
+        self._images[filename]["algo_count"] = count
+        # Restore manual marks from backup (BMGR-06)
+        self._images[filename]["manual_marks"] = self._marks_backup.get(filename, [])
+        if filename == self._current_file:
+            self._redraw_annotated()
+        total = count + len(self._images[filename]["manual_marks"])
+        self._update_results_row(filename, total)
+
+    def _on_reanalyze_finished(self):
+        """Handle re-analysis completion: update manifest and restore button state."""
+        self._is_analyzing = False
+        self._marks_backup = {}
+        self.analyze_btn.setEnabled(True)
+        self.auto_optimize_btn.setEnabled(True)
+        self.progress_bar.setVisible(False)
+        # Update manifest with new results
+        BatchManager.update_manifest(self._current_batch_dir, self._images, self._collect_params())
+        self._update_batch_buttons()
+        self.statusBar().showMessage("Re-analysis complete", 3000)
+        self.status_label.setText("Re-analysis complete")
+
+    def _on_export_csv(self):
+        """Export batch results to a CSV file."""
+        if self._current_batch_dir is None:
+            return
+        from pathlib import Path as _Path
+        manifest = BatchManager.load_batch(self._current_batch_dir)
+        default_name = f"{manifest['name']}_results.csv"
+        path, _ = QFileDialog.getSaveFileName(self, "Export CSV", default_name, "CSV files (*.csv)")
+        if not path:
+            return
+        BatchManager.export_csv(manifest, _Path(path))
+        self.statusBar().showMessage(f"Exported to {path}", 3000)
+        self.status_label.setText(f"Exported: {default_name}")
