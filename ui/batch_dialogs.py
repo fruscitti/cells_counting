@@ -39,6 +39,8 @@ class OpenBatchDialog(QDialog):
             self._list.addItem(item)
         layout.addWidget(self._list)
 
+        self._list.itemDoubleClicked.connect(lambda _: self.accept())
+
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
