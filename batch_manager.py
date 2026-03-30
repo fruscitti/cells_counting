@@ -1,6 +1,7 @@
 """BatchManager — pure Python batch persistence module. No Qt imports."""
 import json
 import os
+import shutil
 import tempfile
 import cv2
 from datetime import datetime, timezone
@@ -140,6 +141,93 @@ class BatchManager:
             except OSError:
                 pass
             raise
+
+    @classmethod
+    def add_images(cls, batch_dir: Path, image_paths: list) -> list:
+        """Copy new images into batch folder, update manifest. Returns list of added filenames."""
+        manifest = cls.load_batch(batch_dir)
+        existing_filenames = {img["filename"] for img in manifest["images"]}
+        added = []
+        for src in image_paths:
+            src = Path(src)
+            dest_name = src.name
+            # Handle duplicate filenames
+            if dest_name in existing_filenames:
+                stem, suffix = src.stem, src.suffix
+                counter = 2
+                while f"{stem}_{counter}{suffix}" in existing_filenames:
+                    counter += 1
+                dest_name = f"{stem}_{counter}{suffix}"
+            shutil.copy2(str(src), str(batch_dir / dest_name))
+            manifest["images"].append({
+                "filename": dest_name,
+                "original_filename": src.name,
+                "annotated_filename": None,
+                "cell_count": 0,
+                "manual_marks": [],
+                "analyzed_at": None,
+            })
+            existing_filenames.add(dest_name)
+            added.append(dest_name)
+        manifest["modified_at"] = datetime.now(timezone.utc).isoformat()
+        # Remove computed "status" fields before writing
+        for img in manifest["images"]:
+            img.pop("status", None)
+        cls._atomic_write_manifest(batch_dir, manifest)
+        return added
+
+    @classmethod
+    def remove_image(cls, batch_dir: Path, filename: str) -> bool:
+        """Remove image entry from manifest. Does NOT delete file from disk. Returns True if found."""
+        manifest = cls.load_batch(batch_dir)
+        original_len = len(manifest["images"])
+        manifest["images"] = [img for img in manifest["images"] if img["filename"] != filename]
+        if len(manifest["images"]) == original_len:
+            return False
+        manifest["modified_at"] = datetime.now(timezone.utc).isoformat()
+        for img in manifest["images"]:
+            img.pop("status", None)
+        cls._atomic_write_manifest(batch_dir, manifest)
+        return True
+
+    @classmethod
+    def update_manifest(cls, batch_dir: Path, images: dict, params: dict):
+        """Rewrite manifest with current image data and parameters (after re-analyze)."""
+        manifest = cls.load_batch(batch_dir)
+        manifest["parameters"] = dict(params)
+        manifest["modified_at"] = datetime.now(timezone.utc).isoformat()
+        for img_entry in manifest["images"]:
+            fn = img_entry["filename"]
+            if fn in images:
+                entry = images[fn]
+                img_entry["cell_count"] = entry.get("algo_count", 0)
+                img_entry["manual_marks"] = [list(m) for m in entry.get("manual_marks", [])]
+                img_entry["analyzed_at"] = datetime.now(timezone.utc).isoformat()
+                # Save updated annotated image if exists
+                if entry.get("annotated_rgb") is not None:
+                    annotated_fn = f"annotated_{fn}"
+                    bgr = cv2.cvtColor(entry["annotated_rgb"], cv2.COLOR_RGB2BGR)
+                    cv2.imwrite(str(batch_dir / annotated_fn), bgr)
+                    img_entry["annotated_filename"] = annotated_fn
+            img_entry.pop("status", None)
+        cls._atomic_write_manifest(batch_dir, manifest)
+
+    @classmethod
+    def export_csv(cls, manifest: dict, output_path: Path):
+        """Export batch results to CSV with filename, total_count, algo_count, manual_count."""
+        import pandas as pd
+        rows = []
+        for img in manifest["images"]:
+            algo = img.get("cell_count", 0) or 0
+            manual = len(img.get("manual_marks", []))
+            rows.append({
+                "filename": img["original_filename"],
+                "total_count": algo + manual,
+                "algo_count": algo,
+                "manual_count": manual,
+            })
+        df = pd.DataFrame(rows)
+        df.to_csv(output_path, index=False)
 
     @classmethod
     def _resolve_unique(cls, candidate: Path) -> Path:

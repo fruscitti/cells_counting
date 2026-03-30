@@ -184,3 +184,163 @@ def test_save_converts_rgb_to_bgr(tmp_path):
     # If correctly converted RGB->BGR, R value (255) is in BGR channel 2
     assert saved_bgr[0, 0, 2] == 255, "red channel in BGR should be 255 (was R=255 in RGB)"
     assert saved_bgr[0, 0, 0] == 0, "blue channel in BGR should be 0"
+
+
+# ---- New tests for add_images, remove_image, update_manifest, export_csv ----
+
+def _make_two_images(with_annotated=True):
+    """Build a minimal _images dict with two images."""
+    original_bgr = np.zeros((50, 50, 3), dtype=np.uint8)
+    original_rgb = np.zeros((50, 50, 3), dtype=np.uint8)
+    annotated_rgb = np.zeros((50, 50, 3), dtype=np.uint8) if with_annotated else None
+    return {
+        "img1.png": {
+            "original_bgr": original_bgr,
+            "original_rgb": original_rgb,
+            "annotated_rgb": annotated_rgb,
+            "algo_count": 5,
+            "manual_marks": [(10, 20)],
+        },
+        "img2.png": {
+            "original_bgr": original_bgr,
+            "original_rgb": original_rgb,
+            "annotated_rgb": annotated_rgb,
+            "algo_count": 3,
+            "manual_marks": [],
+        },
+    }
+
+
+def test_add_images(tmp_path):
+    """BMGR-04: add_images copies new files into batch folder and updates manifest images list."""
+    import cv2
+    from batch_manager import BatchManager
+    BatchManager.BATCHES_ROOT = tmp_path / "batches"
+    images = _make_images()
+    batch_dir = BatchManager.save_batch("test-add", images, PARAMS)
+    # Create a new image file to add
+    new_img_path = tmp_path / "new_img.png"
+    cv2.imwrite(str(new_img_path), np.zeros((50, 50, 3), dtype=np.uint8))
+    added = BatchManager.add_images(batch_dir, [new_img_path])
+    assert "new_img.png" in added, "should return added filename"
+    manifest = BatchManager.load_batch(batch_dir)
+    filenames = [img["filename"] for img in manifest["images"]]
+    assert "new_img.png" in filenames, "new image should appear in manifest"
+    assert (batch_dir / "new_img.png").exists(), "new image file should be copied to batch folder"
+
+
+def test_add_images_no_duplicate(tmp_path):
+    """BMGR-04: adding an image with same filename as existing one gets a suffix."""
+    import cv2
+    from batch_manager import BatchManager
+    BatchManager.BATCHES_ROOT = tmp_path / "batches"
+    images = _make_images()
+    batch_dir = BatchManager.save_batch("test-dup", images, PARAMS)
+    # Add a new image with the same filename as existing img1.png
+    dup_path = tmp_path / "img1.png"
+    cv2.imwrite(str(dup_path), np.zeros((50, 50, 3), dtype=np.uint8))
+    added = BatchManager.add_images(batch_dir, [dup_path])
+    assert len(added) == 1
+    # Should not be "img1.png" (duplicate)
+    assert added[0] != "img1.png", "duplicate filename should get a suffix"
+    assert added[0].startswith("img1_"), f"suffixed name should start with 'img1_', got {added[0]}"
+    manifest = BatchManager.load_batch(batch_dir)
+    filenames = [img["filename"] for img in manifest["images"]]
+    assert added[0] in filenames, "renamed file should appear in manifest"
+
+
+def test_remove_image_no_delete(tmp_path):
+    """BMGR-05: remove_image removes entry from manifest but file still exists on disk."""
+    from batch_manager import BatchManager
+    BatchManager.BATCHES_ROOT = tmp_path / "batches"
+    images = _make_two_images()
+    batch_dir = BatchManager.save_batch("test-remove", images, PARAMS)
+    result = BatchManager.remove_image(batch_dir, "img2.png")
+    assert result is True, "remove_image should return True when image found"
+    manifest = BatchManager.load_batch(batch_dir)
+    filenames = [img["filename"] for img in manifest["images"]]
+    assert "img2.png" not in filenames, "img2.png should be removed from manifest"
+    assert "img1.png" in filenames, "img1.png should still be in manifest"
+    assert (batch_dir / "img2.png").exists(), "img2.png file should still exist on disk"
+
+
+def test_remove_image_not_found(tmp_path):
+    """BMGR-05: removing a filename not in manifest returns False (no error)."""
+    from batch_manager import BatchManager
+    BatchManager.BATCHES_ROOT = tmp_path / "batches"
+    images = _make_images()
+    batch_dir = BatchManager.save_batch("test-remove-nf", images, PARAMS)
+    result = BatchManager.remove_image(batch_dir, "nonexistent.png")
+    assert result is False, "remove_image should return False when image not found"
+
+
+def test_update_manifest(tmp_path):
+    """update_manifest rewrites manifest with new params and image data."""
+    from batch_manager import BatchManager
+    BatchManager.BATCHES_ROOT = tmp_path / "batches"
+    images = _make_images()
+    batch_dir = BatchManager.save_batch("test-update", images, PARAMS)
+    # Update with new params and new count
+    new_params = dict(PARAMS)
+    new_params["brightness_threshold"] = 150
+    updated_images = {
+        "img1.png": {
+            "original_bgr": np.zeros((50, 50, 3), dtype=np.uint8),
+            "original_rgb": np.zeros((50, 50, 3), dtype=np.uint8),
+            "annotated_rgb": np.zeros((50, 50, 3), dtype=np.uint8),
+            "algo_count": 8,
+            "manual_marks": [(5, 10)],
+        }
+    }
+    BatchManager.update_manifest(batch_dir, updated_images, new_params)
+    manifest = BatchManager.load_batch(batch_dir)
+    assert manifest["parameters"]["brightness_threshold"] == 150
+    assert manifest["images"][0]["cell_count"] == 8
+
+
+def test_export_csv_columns(tmp_path):
+    """BMGR-07: export_csv creates CSV with columns: filename, total_count, algo_count, manual_count."""
+    import pandas as pd
+    from batch_manager import BatchManager
+    BatchManager.BATCHES_ROOT = tmp_path / "batches"
+    images = _make_images(manual_marks=[(10, 20), (30, 40)])
+    batch_dir = BatchManager.save_batch("test-export", images, PARAMS)
+    output = tmp_path / "results.csv"
+    manifest = BatchManager.load_batch(batch_dir)
+    BatchManager.export_csv(manifest, output)
+    df = pd.read_csv(output)
+    assert list(df.columns) == ["filename", "total_count", "algo_count", "manual_count"], \
+        f"unexpected columns: {list(df.columns)}"
+
+
+def test_export_csv_row_count(tmp_path):
+    """BMGR-07: export_csv has one row per image in manifest."""
+    import pandas as pd
+    from batch_manager import BatchManager
+    BatchManager.BATCHES_ROOT = tmp_path / "batches"
+    images = _make_two_images()
+    batch_dir = BatchManager.save_batch("test-export-rows", images, PARAMS)
+    output = tmp_path / "results.csv"
+    manifest = BatchManager.load_batch(batch_dir)
+    BatchManager.export_csv(manifest, output)
+    df = pd.read_csv(output)
+    assert len(df) == 2, f"expected 2 rows, got {len(df)}"
+
+
+def test_export_csv_counts(tmp_path):
+    """BMGR-07: manual_count = len(manual_marks), total = algo + manual."""
+    import pandas as pd
+    from batch_manager import BatchManager
+    BatchManager.BATCHES_ROOT = tmp_path / "batches"
+    marks = [(10, 20), (30, 40)]
+    images = _make_images(manual_marks=marks)
+    # algo_count is 5 (from _make_images), manual is 2
+    batch_dir = BatchManager.save_batch("test-counts", images, PARAMS)
+    output = tmp_path / "results.csv"
+    manifest = BatchManager.load_batch(batch_dir)
+    BatchManager.export_csv(manifest, output)
+    df = pd.read_csv(output)
+    row = df.iloc[0]
+    assert row["algo_count"] == 5, f"algo_count should be 5, got {row['algo_count']}"
+    assert row["manual_count"] == 2, f"manual_count should be 2, got {row['manual_count']}"
+    assert row["total_count"] == 7, f"total_count should be 7, got {row['total_count']}"
