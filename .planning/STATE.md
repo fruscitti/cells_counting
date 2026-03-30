@@ -16,7 +16,7 @@ progress:
 **Project:** Fluorescence Cell Counter — Desktop App + Batch Management
 **Milestone:** v2.0
 **Branch:** local-ui
-**Last updated:** 2026-03-30 — Completed quick task 260330-eto: Fix batch management (cell counts on open, save in-place, total row)
+**Last updated:** 2026-03-30 — Completed quick task 260330-f91: Add zoom (mouse wheel) + QScrollArea pan to both image panels
 
 ## Project Reference
 
@@ -77,3 +77,4 @@ Next step: Run `/gsd:verify-work` or `/gsd:transition`
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260330-eto | Fix batch management: cell counts on open, save in-place, total row | 2026-03-30 | 73e6ff8 | [260330-eto-fix-batch-management-cell-counts-not-res](.planning/quick/260330-eto-fix-batch-management-cell-counts-not-res/) |
+| 260330-f91 | Add mouse-wheel zoom + QScrollArea pan to both image panels | 2026-03-30 | 8137070 | [260330-f91-add-manual-cell-marking-zoom-images-mark](.planning/quick/260330-f91-add-manual-cell-marking-zoom-images-mark/) |
