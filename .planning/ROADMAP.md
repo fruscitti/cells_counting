@@ -140,7 +140,7 @@ Plans:
 
 ## Phases
 
-- [ ] **Phase 4: Layout Foundation** - Resizable sidebar and persistent status bar replace fixed-width panel and floating labels
+- [x] **Phase 4: Layout Foundation** - Resizable sidebar and persistent status bar replace fixed-width panel and floating labels
 - [ ] **Phase 5: Actions Surface** - Menu bar and toolbar wired via shared QAction instances covering all commands
 - [ ] **Phase 6: Cleanup and Shortcuts** - Old buttons removed, enable/disable consolidated, keyboard shortcuts verified
 
@@ -160,7 +160,7 @@ Plans:
 
 Plans:
 - [x] 04-01-PLAN.md — Write 7 failing tests for Phase 4 requirements (TDD RED phase)
-- [ ] 04-02-PLAN.md — Implement resizable sidebar, hide buttons, wire status bar (TDD GREEN phase)
+- [x] 04-02-PLAN.md — Implement resizable sidebar, hide buttons, wire status bar (TDD GREEN phase)
 
 ### Phase 5: Actions Surface
 **Goal**: Users can reach every application command from the menu bar or the toolbar with a single click, and the same command is never out-of-sync between the two surfaces
@@ -190,7 +190,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 4. Layout Foundation | 1/2 | In progress | - |
+| 4. Layout Foundation | 2/2 | Complete | 2026-03-30 |
 | 5. Actions Surface | 0/? | Not started | - |
 | 6. Cleanup and Shortcuts | 0/? | Not started | - |
 
