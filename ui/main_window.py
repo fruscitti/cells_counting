@@ -126,6 +126,31 @@ class MainWindow(QMainWindow):
         images_layout.setContentsMargins(0, 0, 0, 0)
         images_layout.setSpacing(4)
 
+        # --- Original image panel ---
+        orig_panel = QWidget()
+        orig_panel_layout = QVBoxLayout(orig_panel)
+        orig_panel_layout.setContentsMargins(0, 0, 0, 0)
+        orig_panel_layout.setSpacing(2)
+
+        orig_zoom_bar = QWidget()
+        orig_zoom_layout = QHBoxLayout(orig_zoom_bar)
+        orig_zoom_layout.setContentsMargins(0, 0, 0, 0)
+        orig_zoom_layout.setSpacing(2)
+        orig_zoom_layout.addWidget(QLabel("Original"))
+        orig_zoom_layout.addStretch()
+        self.orig_zoom_out_btn = QPushButton("−")
+        self.orig_zoom_out_btn.setFixedWidth(28)
+        self.orig_zoom_out_btn.setToolTip("Zoom out")
+        self.orig_zoom_reset_btn = QPushButton("1:1")
+        self.orig_zoom_reset_btn.setFixedWidth(36)
+        self.orig_zoom_reset_btn.setToolTip("Reset zoom")
+        self.orig_zoom_in_btn = QPushButton("+")
+        self.orig_zoom_in_btn.setFixedWidth(28)
+        self.orig_zoom_in_btn.setToolTip("Zoom in")
+        orig_zoom_layout.addWidget(self.orig_zoom_out_btn)
+        orig_zoom_layout.addWidget(self.orig_zoom_reset_btn)
+        orig_zoom_layout.addWidget(self.orig_zoom_in_btn)
+
         self.original_label = ScaledImageLabel(click_enabled=False)
         self.original_label.setStyleSheet("border: 1px solid #aaa;")
         self.original_label.setText("Original")
@@ -133,7 +158,35 @@ class MainWindow(QMainWindow):
         self.original_scroll = QScrollArea()
         self.original_scroll.setWidgetResizable(True)
         self.original_scroll.setWidget(self.original_label)
-        images_layout.addWidget(self.original_scroll)
+
+        orig_panel_layout.addWidget(orig_zoom_bar)
+        orig_panel_layout.addWidget(self.original_scroll)
+        images_layout.addWidget(orig_panel)
+
+        # --- Annotated image panel ---
+        ann_panel = QWidget()
+        ann_panel_layout = QVBoxLayout(ann_panel)
+        ann_panel_layout.setContentsMargins(0, 0, 0, 0)
+        ann_panel_layout.setSpacing(2)
+
+        ann_zoom_bar = QWidget()
+        ann_zoom_layout = QHBoxLayout(ann_zoom_bar)
+        ann_zoom_layout.setContentsMargins(0, 0, 0, 0)
+        ann_zoom_layout.setSpacing(2)
+        ann_zoom_layout.addWidget(QLabel("Annotated"))
+        ann_zoom_layout.addStretch()
+        self.ann_zoom_out_btn = QPushButton("−")
+        self.ann_zoom_out_btn.setFixedWidth(28)
+        self.ann_zoom_out_btn.setToolTip("Zoom out")
+        self.ann_zoom_reset_btn = QPushButton("1:1")
+        self.ann_zoom_reset_btn.setFixedWidth(36)
+        self.ann_zoom_reset_btn.setToolTip("Reset zoom")
+        self.ann_zoom_in_btn = QPushButton("+")
+        self.ann_zoom_in_btn.setFixedWidth(28)
+        self.ann_zoom_in_btn.setToolTip("Zoom in")
+        ann_zoom_layout.addWidget(self.ann_zoom_out_btn)
+        ann_zoom_layout.addWidget(self.ann_zoom_reset_btn)
+        ann_zoom_layout.addWidget(self.ann_zoom_in_btn)
 
         self.annotated_label = ScaledImageLabel(click_enabled=True)
         self.annotated_label.setStyleSheet("border: 1px solid #aaa;")
@@ -142,7 +195,10 @@ class MainWindow(QMainWindow):
         self.annotated_scroll = QScrollArea()
         self.annotated_scroll.setWidgetResizable(True)
         self.annotated_scroll.setWidget(self.annotated_label)
-        images_layout.addWidget(self.annotated_scroll)
+
+        ann_panel_layout.addWidget(ann_zoom_bar)
+        ann_panel_layout.addWidget(self.annotated_scroll)
+        images_layout.addWidget(ann_panel)
 
         right_splitter.addWidget(images_widget)
 
@@ -173,6 +229,12 @@ class MainWindow(QMainWindow):
         self.remove_image_btn.clicked.connect(self._on_remove_image)
         self.re_analyze_btn.clicked.connect(self._on_re_analyze)
         self.export_csv_btn.clicked.connect(self._on_export_csv)
+        self.orig_zoom_in_btn.clicked.connect(self.original_label.zoom_in)
+        self.orig_zoom_out_btn.clicked.connect(self.original_label.zoom_out)
+        self.orig_zoom_reset_btn.clicked.connect(self.original_label.zoom_reset)
+        self.ann_zoom_in_btn.clicked.connect(self.annotated_label.zoom_in)
+        self.ann_zoom_out_btn.clicked.connect(self.annotated_label.zoom_out)
+        self.ann_zoom_reset_btn.clicked.connect(self.annotated_label.zoom_reset)
 
     # ---- Public API ----
 
