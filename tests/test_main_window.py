@@ -33,12 +33,63 @@ def test_count_label_initial(main_window):
     assert main_window.count_label is not None
     assert "0" in main_window.count_label.text()
 
-@pytest.mark.skip(reason="Implemented in Plan 03")
-def test_total_count(main_window):
+def test_total_count(qtbot):
     """MARK-03: Total count = algo + manual."""
-    pass
+    import cv2
+    import numpy as np
+    from ui.main_window import MainWindow
 
-@pytest.mark.skip(reason="Implemented in Plan 03")
-def test_clear_resets(main_window):
+    w = MainWindow()
+    qtbot.addWidget(w)
+
+    img_bgr = np.zeros((100, 100, 3), dtype=np.uint8)
+    img_bgr[40:60, 40:60, 1] = 255
+    img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
+    from analysis_core import process_image
+    ann_bgr, count = process_image(img_bgr, 120, 25, 9, True)
+    ann_rgb = cv2.cvtColor(ann_bgr, cv2.COLOR_BGR2RGB)
+
+    filename = "test.png"
+    w._images[filename] = {
+        "original_bgr": img_bgr,
+        "original_rgb": img_rgb,
+        "annotated_rgb": ann_rgb,
+        "algo_count": count,
+        "manual_marks": [(50, 50)]
+    }
+    w._current_file = filename
+    w._redraw_annotated()
+
+    expected = count + 1  # algo + 1 manual mark
+    assert w.count_label.text() == f"Cell Count: {expected}"
+
+
+def test_clear_resets(qtbot, tmp_path):
     """CLR-01: Clear resets all state to defaults."""
-    pass
+    import cv2
+    import numpy as np
+    from ui.main_window import MainWindow
+
+    w = MainWindow()
+    qtbot.addWidget(w)
+
+    # Load an image
+    img_bgr = np.zeros((100, 100, 3), dtype=np.uint8)
+    img_path = str(tmp_path / "test.png")
+    cv2.imwrite(img_path, img_bgr)
+    w.load_images([img_path])
+    assert w.image_list.count() == 1
+
+    # Change a parameter
+    w.param_panel.brightness_slider.setValue(50)
+
+    # Clear
+    w._on_clear()
+
+    # Verify reset
+    assert w.image_list.count() == 0
+    assert len(w._images) == 0
+    assert w._current_file is None
+    assert w.param_panel.brightness_slider.value() == 120  # default
+    assert w.count_label.text() == "Cell Count: 0"
+    assert w.results_table.rowCount() == 0

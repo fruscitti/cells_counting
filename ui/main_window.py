@@ -68,6 +68,10 @@ class MainWindow(QMainWindow):
         self.clear_btn = QPushButton("Clear")
         left_layout.addWidget(self.clear_btn)
 
+        self.undo_mark_btn = QPushButton("Undo Mark")
+        self.undo_mark_btn.setEnabled(False)
+        left_layout.addWidget(self.undo_mark_btn)
+
         self.progress_bar = QProgressBar()
         self.progress_bar.setVisible(False)
         left_layout.addWidget(self.progress_bar)
@@ -102,7 +106,7 @@ class MainWindow(QMainWindow):
         self.original_label.setAlignment(Qt.AlignCenter)
         images_layout.addWidget(self.original_label)
 
-        self.annotated_label = ScaledImageLabel(click_enabled=False)
+        self.annotated_label = ScaledImageLabel(click_enabled=True)
         self.annotated_label.setStyleSheet("border: 1px solid #aaa;")
         self.annotated_label.setText("Annotated")
         self.annotated_label.setAlignment(Qt.AlignCenter)
@@ -129,6 +133,8 @@ class MainWindow(QMainWindow):
         self.clear_btn.clicked.connect(self._on_clear)
         self.analyze_btn.clicked.connect(self._on_analyze)
         self.auto_optimize_btn.clicked.connect(self._on_auto_optimize)
+        self.annotated_label.clicked.connect(self._on_annotated_click)
+        self.undo_mark_btn.clicked.connect(self._on_undo_mark)
 
     # ---- Public API ----
 
@@ -185,33 +191,91 @@ class MainWindow(QMainWindow):
         self.original_label.setPixmap(numpy_rgb_to_pixmap(entry["original_rgb"]))
         self.original_label.setText("")
 
-        # Show annotated image if available, otherwise clear
+        # Show annotated image if available (with manual marks), otherwise clear
         if entry["annotated_rgb"] is not None:
-            self.annotated_label.setPixmap(numpy_rgb_to_pixmap(entry["annotated_rgb"]))
-            self.annotated_label.setText("")
+            self._redraw_annotated()
         else:
             self.annotated_label.clearPixmap()
             self.annotated_label.setText("Annotated")
+            # Update count label (no annotated image yet)
+            total = entry["algo_count"] + len(entry["manual_marks"])
+            self.count_label.setText(f"Cell Count: {total}")
 
-        # Update count label
+        # Update undo button state
+        self.undo_mark_btn.setEnabled(len(entry["manual_marks"]) > 0)
+
+    def _on_annotated_click(self, orig_x: int, orig_y: int):
+        """MARK-01: Add a manual mark at the clicked position on the annotated image."""
+        if self._current_file is None:
+            return
+        entry = self._images.get(self._current_file)
+        if entry is None or entry["annotated_rgb"] is None:
+            return
+        entry["manual_marks"].append((orig_x, orig_y))
+        self._redraw_annotated()
+        self.undo_mark_btn.setEnabled(True)
+
+    def _on_undo_mark(self):
+        """MARK-02: Remove the last manual mark and redraw."""
+        if self._current_file is None:
+            return
+        entry = self._images.get(self._current_file)
+        if entry is None:
+            return
+        marks = entry["manual_marks"]
+        if not marks:
+            return
+        marks.pop()
+        self._redraw_annotated()
+        if not marks:
+            self.undo_mark_btn.setEnabled(False)
+
+    def _redraw_annotated(self):
+        """Redraw the annotated image with current manual marks on top."""
+        if self._current_file is None:
+            return
+        entry = self._images.get(self._current_file)
+        if entry is None:
+            return
+        base_rgb = entry["annotated_rgb"]
+        if base_rgb is None:
+            return
+        from analysis_core import draw_manual_marks
+        display_rgb = draw_manual_marks(base_rgb, entry["manual_marks"])
+        self.annotated_label.setPixmap(numpy_rgb_to_pixmap(display_rgb))
+        self.annotated_label.setText("")
         total = entry["algo_count"] + len(entry["manual_marks"])
         self.count_label.setText(f"Cell Count: {total}")
 
     def _on_clear(self):
-        """Clear all loaded images and reset the UI."""
+        """CLR-01: Reset all state to defaults."""
+        # Clear image data
         self._images.clear()
         self._file_paths.clear()
         self._current_file = None
+
+        # Clear UI widgets
         self.image_list.clear()
+        self.results_table.setRowCount(0)
         self.original_label.clearPixmap()
         self.original_label.setText("Original")
         self.annotated_label.clearPixmap()
         self.annotated_label.setText("Annotated")
         self.count_label.setText("Cell Count: 0")
+        self.status_label.setText("Ready")
+        self.progress_bar.setValue(0)
+        self.progress_bar.setVisible(False)
+
+        # Reset parameters to defaults
+        self.param_panel.reset_defaults()
+
+        # Disable action buttons
         self.analyze_btn.setEnabled(False)
         self.auto_optimize_btn.setEnabled(False)
-        self.results_table.setRowCount(0)
-        self.status_label.setText("Ready")
+        self.undo_mark_btn.setEnabled(False)
+
+        # Reset window title (no batch context in Phase 2)
+        self.setWindowTitle("Cell Counter")
 
     # ---- Analysis worker slots ----
 
@@ -244,10 +308,7 @@ class MainWindow(QMainWindow):
         self._images[filename]["algo_count"] = count
         self._update_results_row(filename, count)
         if filename == self._current_file:
-            self.annotated_label.setPixmap(numpy_rgb_to_pixmap(annotated_rgb))
-            self.annotated_label.setText("")
-            total = count + len(self._images[filename]["manual_marks"])
-            self.count_label.setText(f"Cell Count: {total}")
+            self._redraw_annotated()
 
     def _on_image_error(self, filename: str, error_msg: str):
         """Handle analysis error for a single image."""
