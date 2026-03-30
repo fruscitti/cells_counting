@@ -12,6 +12,7 @@ from PySide6.QtGui import QFont
 
 from ui.scaled_image_label import ScaledImageLabel
 from ui.image_utils import numpy_rgb_to_pixmap
+from ui.param_panel import ParamPanel
 
 
 class MainWindow(QMainWindow):
@@ -52,10 +53,9 @@ class MainWindow(QMainWindow):
         self.image_list = QListWidget()
         left_layout.addWidget(self.image_list)
 
-        # Placeholder container where Plan 02 will insert parameter controls
-        self.param_container = QWidget()
-        self.param_container.setMinimumHeight(20)
-        left_layout.addWidget(self.param_container)
+        # Parameter control panel
+        self.param_panel = ParamPanel()
+        left_layout.addWidget(self.param_panel)
 
         self.analyze_btn = QPushButton("Analyze")
         self.analyze_btn.setEnabled(False)
