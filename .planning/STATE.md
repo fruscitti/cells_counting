@@ -1,36 +1,36 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: — Fluorescence Cell Counter Web App
-status: Milestone complete
-last_updated: "2026-03-30T02:06:59.192Z"
+milestone: v3.0
+milestone_name: UI Redesign
+status: Defining requirements
+last_updated: "2026-03-30"
 progress:
-  total_phases: 2
-  completed_phases: 2
-  total_plans: 5
-  completed_plans: 5
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # Project State
 
 **Project:** Fluorescence Cell Counter — Desktop App + Batch Management
-**Milestone:** v2.0
-**Branch:** local-ui
-**Last updated:** 2026-03-30 — Completed quick task 260330-i45: Add ability to unmark detected cells by clicking
+**Milestone:** v3.0 — UI Redesign
+**Branch:** main
+**Last updated:** 2026-03-30 — Milestone v3.0 started
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-29)
+See: .planning/PROJECT.md (updated 2026-03-30)
 
 **Core value:** Scientists can analyze fluorescence images offline, save named batches, and return to re-examine or modify sessions without a web browser.
-**Current focus:** Phase 03 — batch-management
+**Current focus:** Defining requirements for v3.0
 
 ## Current Position
 
-Phase: 03
-Plan: Not started
-
-Next step: Run `/gsd:verify-work` or `/gsd:transition`
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-30 — Milestone v3.0 started
 
 ## Phase Status
 

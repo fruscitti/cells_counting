@@ -21,9 +21,24 @@ Scientists can analyze fluorescence images offline, save their work as named bat
 - ✓ Results table (filename + cell count) — existing
 - ✓ Clear/reset functionality — existing
 
+## Current Milestone: v3.0 UI Redesign
+
+**Goal:** Replace the cramped left-panel button stack with a standard desktop layout — menu bar, toolbar, and a resizable sidebar that gives the image list and parameter sliders room to breathe.
+
+**Target features:**
+- Menu bar: File / Batch / Analysis menus (all current action buttons moved in)
+- Toolbar: Analyze, Auto-Optimize, Undo Mark, Clear — persistent one-click access
+- Left sidebar resizable via splitter (not fixed width)
+- Keyboard shortcuts (Ctrl+O, Ctrl+S, Delete to remove image, etc.)
+- Status bar at the bottom (batch name, image count, cell count)
+
 ### Active
 
-*(none — all v2.0 requirements validated)*
+- [ ] Menu bar with File, Batch, and Analysis menus
+- [ ] Toolbar with primary analysis actions
+- [ ] Resizable left sidebar (splitter replaces fixed width)
+- [ ] Keyboard shortcuts for common actions
+- [ ] Persistent status bar (batch name, image count, cell count)
 
 ### Validated in Phase 3
 
@@ -98,4 +113,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-29 after Phase 3 completion — Batch Management complete; v2.0 milestone feature-complete*
+*Last updated: 2026-03-30 after v3.0 milestone start — UI Redesign (menu bar, toolbar, resizable sidebar, shortcuts, status bar)*
