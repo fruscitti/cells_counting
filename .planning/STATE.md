@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: — Fluorescence Cell Counter Web App
-status: executing
-last_updated: "2026-03-30T22:05:09.344Z"
-last_activity: 2026-03-30 -- Phase 04 Plan 01 complete (RED tests)
+status: planning
+last_updated: "2026-03-30T22:13:57.767Z"
+last_activity: 2026-03-30 — v3.0 roadmap defined (3 phases, 17 requirements)
 progress:
   total_phases: 3
   completed_phases: 0
-  total_plans: 2
-  completed_plans: 1
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # Project State
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-30)
 
 **Core value:** Scientists can analyze fluorescence images offline, save named batches, and return to re-examine or modify sessions without a web browser.
-**Current focus:** Phase 04 — layout-foundation
+**Current focus:** Phase 4 — Layout Foundation (resizable sidebar + status bar)
 
 ## Current Position
 
-Phase: 04 (layout-foundation) — EXECUTING
-Plan: 2 of 2
-Status: Executing Phase 04 (Plan 01 complete — RED tests done)
-Last activity: 2026-03-30 -- Phase 04 Plan 01 complete (7 failing tests added)
+Phase: 4 — Layout Foundation
+Plan: Not started
+Status: Roadmap defined, ready to plan Phase 4
+Last activity: 2026-03-30 — v3.0 roadmap defined (3 phases, 17 requirements)
 
 ```
 v3.0 Progress: [░░░░░░░░░░] 0% (0/3 phases complete)
@@ -79,9 +79,6 @@ v3.0 Progress: [░░░░░░░░░░] 0% (0/3 phases complete)
 - Plan 03-02: _is_analyzing flag guards all batch mutation buttons (prevents Pitfall 3: manifest written mid-analysis)
 - Plan 03-02: status field stripped via img.pop("status", None) before every _atomic_write_manifest in new mutation methods
 - Plan 03-02: test_reanalyze_preserves_marks uses qtbot.waitUntil on _is_analyzing flag (Python method patching doesn't intercept Qt slot dispatch)
-- Plan 04-01: TDD RED tests import Qt symbols inline (inside test bodies) to keep top-level imports minimal
-- Plan 04-01: test_sidebar_no_buttons uses isVisibleTo(left_scroll) for accurate visibility check inside scroll area widget tree
-- Plan 04-01: test_status_bar_cell_count injects _images dict directly to isolate _update_status_bar without requiring full analyze cycle
 
 ## Research Findings for v3.0 (HIGH confidence)
 

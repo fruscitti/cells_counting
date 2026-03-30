@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (
     QSplitter, QTableWidget, QTableWidgetItem, QHeaderView,
     QFileDialog, QDialog, QInputDialog, QMessageBox, QScrollArea
 )
-from PySide6.QtCore import Qt, QThreadPool
+from PySide6.QtCore import Qt, QThreadPool, QTimer, QSettings
 from PySide6.QtGui import QFont
 
 from ui.scaled_image_label import ScaledImageLabel
@@ -34,6 +34,8 @@ class MainWindow(QMainWindow):
 
         self._build_ui()
         self._connect_signals()
+        self._update_status_bar()
+        QTimer.singleShot(0, self._restore_splitter_state)
 
     def _build_ui(self):
         """Build the main UI layout."""
@@ -43,9 +45,8 @@ class MainWindow(QMainWindow):
         main_layout.setContentsMargins(8, 8, 8, 8)
         main_layout.setSpacing(8)
 
-        # --- Left panel (scrollable, fixed 298px to fit scrollbar) ---
+        # --- Left panel (scrollable sidebar) ---
         left_panel = QWidget()
-        left_panel.setFixedWidth(278)
         left_layout = QVBoxLayout(left_panel)
         left_layout.setContentsMargins(0, 0, 0, 0)
         left_layout.setSpacing(6)
@@ -98,12 +99,23 @@ class MainWindow(QMainWindow):
         self.undo_mark_btn.setEnabled(False)
         left_layout.addWidget(self.undo_mark_btn)
 
+        # Hide sidebar buttons — they will be re-surfaced by the toolbar in Phase 5 (per SIDE-03)
+        for _btn in [
+            self.open_btn, self.analyze_btn, self.auto_optimize_btn, self.clear_btn,
+            self.save_batch_btn, self.open_batch_btn, self.add_images_btn,
+            self.remove_image_btn, self.re_analyze_btn, self.export_csv_btn,
+            self.undo_mark_btn,
+        ]:
+            _btn.setVisible(False)
+
         self.progress_bar = QProgressBar()
         self.progress_bar.setVisible(False)
-        left_layout.addWidget(self.progress_bar)
+        self.progress_bar.setMaximumWidth(200)
+        # progress_bar will be added to the status bar in _setup_status_bar()
 
+        # Keep status_label as attribute (referenced by some existing code paths)
+        # but do NOT add to any layout — status bar replaces it
         self.status_label = QLabel("Ready")
-        left_layout.addWidget(self.status_label)
 
         # Cell count display
         self.count_label = QLabel("Cell Count: 0")
@@ -116,13 +128,13 @@ class MainWindow(QMainWindow):
 
         left_layout.addStretch()
 
-        left_scroll = QScrollArea()
-        left_scroll.setFixedWidth(298)
-        left_scroll.setWidgetResizable(True)
-        left_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        left_scroll.setFrameShape(left_scroll.Shape.NoFrame)
-        left_scroll.setWidget(left_panel)
-        main_layout.addWidget(left_scroll)
+        self.left_scroll = QScrollArea()
+        self.left_scroll.setMinimumWidth(220)
+        self.left_scroll.setMaximumWidth(500)
+        self.left_scroll.setWidgetResizable(True)
+        self.left_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.left_scroll.setFrameShape(self.left_scroll.Shape.NoFrame)
+        self.left_scroll.setWidget(left_panel)
 
         # --- Right side (splitter) ---
         right_splitter = QSplitter(Qt.Vertical)
@@ -219,7 +231,58 @@ class MainWindow(QMainWindow):
         right_splitter.setStretchFactor(0, 3)
         right_splitter.setStretchFactor(1, 1)
 
-        main_layout.addWidget(right_splitter, stretch=1)
+        self.outer_splitter = QSplitter(Qt.Horizontal)
+        self.outer_splitter.addWidget(self.left_scroll)   # index 0: sidebar
+        self.outer_splitter.addWidget(right_splitter)      # index 1: image area
+        self.outer_splitter.setStretchFactor(0, 0)
+        self.outer_splitter.setStretchFactor(1, 1)
+        main_layout.addWidget(self.outer_splitter)
+
+        self._setup_status_bar()
+
+    def _setup_status_bar(self):
+        """Add permanent labels and progress bar to the status bar (STAT-01-04)."""
+        self._status_batch_lbl = QLabel("No batch")
+        self._status_count_lbl = QLabel("0 images")
+        self._status_cells_lbl = QLabel("0 cells")
+
+        bar = self.statusBar()
+        bar.addWidget(self.progress_bar)          # left side, hidden by default
+        bar.addPermanentWidget(QLabel("|"))
+        bar.addPermanentWidget(self._status_batch_lbl)
+        bar.addPermanentWidget(QLabel("|"))
+        bar.addPermanentWidget(self._status_count_lbl)
+        bar.addPermanentWidget(QLabel("|"))
+        bar.addPermanentWidget(self._status_cells_lbl)
+
+    def _update_status_bar(self):
+        """Refresh permanent status bar labels from canonical state (self._images, self._current_batch_dir)."""
+        batch_name = "No batch"
+        if self._current_batch_dir is not None:
+            batch_name = self._current_batch_dir.name
+        image_count = len(self._images)
+        total_cells = sum(
+            e["algo_count"] + len(e["manual_marks"])
+            for e in self._images.values()
+            if e is not None
+        )
+        self._status_batch_lbl.setText(batch_name)
+        n = image_count
+        self._status_count_lbl.setText(f"{n} image{'s' if n != 1 else ''}")
+        c = total_cells
+        self._status_cells_lbl.setText(f"{c} cell{'s' if c != 1 else ''}")
+
+    def _restore_splitter_state(self):
+        """Restore sidebar splitter position after window geometry is resolved."""
+        settings = QSettings("CellCounter", "Layout")
+        state = settings.value("sidebar_splitter")
+        if state:
+            self.outer_splitter.restoreState(state)
+
+    def closeEvent(self, event):
+        settings = QSettings("CellCounter", "Layout")
+        settings.setValue("sidebar_splitter", self.outer_splitter.saveState())
+        super().closeEvent(event)
 
     def _connect_signals(self):
         """Wire up signals to slots."""
@@ -274,6 +337,7 @@ class MainWindow(QMainWindow):
             if self.image_list.currentRow() < 0:
                 self.image_list.setCurrentRow(0)
         self._update_batch_buttons()
+        self._update_status_bar()
 
     # ---- Private slots ----
 
@@ -387,6 +451,7 @@ class MainWindow(QMainWindow):
         total = len(active) + len(entry["manual_marks"])
         self.count_label.setText(f"Cell Count: {total}")
         self._update_results_row(self._current_file, total)
+        self._update_status_bar()
 
     def _on_clear(self):
         """CLR-01: Reset all state to defaults."""
@@ -419,6 +484,7 @@ class MainWindow(QMainWindow):
         # Reset window title
         self.setWindowTitle("Cell Counter")
         self._update_batch_buttons()
+        self._update_status_bar()
 
     # ---- Analysis worker slots ----
 
@@ -456,6 +522,7 @@ class MainWindow(QMainWindow):
         self._update_results_row(filename, count)
         if filename == self._current_file:
             self._redraw_annotated()
+        self._update_status_bar()
 
     def _on_image_error(self, filename: str, error_msg: str):
         """Handle analysis error for a single image."""
@@ -682,6 +749,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(f"Cell Counter — {batch_name}")
         self.status_label.setText(f"Batch opened: {batch_name}")
         self._update_batch_buttons()
+        self._update_status_bar()
 
     def _on_add_images(self):
         """Add new images to the currently open batch."""
@@ -730,6 +798,7 @@ class MainWindow(QMainWindow):
         self.annotated_label.setText("Annotated")
         self.count_label.setText("Cell Count: 0")
         self._update_batch_buttons()
+        self._update_status_bar()
 
     def _on_re_analyze(self):
         """Re-analyze all batch images with current parameters, preserving manual marks."""
@@ -767,6 +836,7 @@ class MainWindow(QMainWindow):
         active_algo = len(self._images[filename]["algo_centroids"])
         total = active_algo + len(self._images[filename]["manual_marks"])
         self._update_results_row(filename, total)
+        self._update_status_bar()
 
     def _on_reanalyze_finished(self):
         """Handle re-analysis completion: update manifest and restore button state."""
