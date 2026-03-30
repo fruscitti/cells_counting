@@ -26,3 +26,11 @@ def main_window(qtbot):
     w = MainWindow()
     qtbot.addWidget(w)
     return w
+
+@pytest.fixture
+def window(qtbot):
+    """Alias fixture for Phase 5+ tests (same as main_window)."""
+    from ui.main_window import MainWindow
+    w = MainWindow()
+    qtbot.addWidget(w)
+    return w

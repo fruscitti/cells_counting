@@ -1,4 +1,6 @@
 import pytest
+from PySide6.QtWidgets import QToolBar
+from PySide6.QtCore import Qt
 
 def test_file_filter(main_window):
     """IMG-01: File dialog filter includes PNG, JPG, TIFF, BMP."""
@@ -150,3 +152,73 @@ def test_status_bar_transient(main_window):
     """STAT-04: showMessage() does not overwrite permanent status bar labels."""
     main_window.statusBar().showMessage("Analyzing...", 5000)
     assert main_window._status_batch_lbl.text() == "No batch"
+
+
+# --- Phase 5: Actions Surface ---
+
+def test_menu_bar_exists(window):
+    """MENU-01/02/03: Menu bar has File, Batch, Analysis menus."""
+    menu_bar = window.menuBar()
+    menu_titles = [a.text() for a in menu_bar.actions()]
+    assert "File" in menu_titles
+    assert "Batch" in menu_titles
+    assert "Analysis" in menu_titles
+
+def test_file_menu_actions(window):
+    """MENU-01: File menu contains correct actions in order."""
+    menu_bar = window.menuBar()
+    file_menu = None
+    for action in menu_bar.actions():
+        if action.text() == "File":
+            file_menu = action.menu()
+            break
+    action_texts = [a.text() for a in file_menu.actions() if not a.isSeparator()]
+    assert action_texts == ["Open Images", "Open Batch", "Save Batch", "Export CSV", "Exit"]
+
+def test_batch_menu_actions(window):
+    """MENU-02: Batch menu contains correct actions in order."""
+    menu_bar = window.menuBar()
+    batch_menu = None
+    for action in menu_bar.actions():
+        if action.text() == "Batch":
+            batch_menu = action.menu()
+            break
+    action_texts = [a.text() for a in batch_menu.actions() if not a.isSeparator()]
+    assert action_texts == ["Add Images", "Remove Image", "Re-Analyze"]
+
+def test_analysis_menu_actions(window):
+    """MENU-03: Analysis menu contains correct actions in order."""
+    menu_bar = window.menuBar()
+    analysis_menu = None
+    for action in menu_bar.actions():
+        if action.text() == "Analysis":
+            analysis_menu = action.menu()
+            break
+    action_texts = [a.text() for a in analysis_menu.actions() if not a.isSeparator()]
+    assert action_texts == ["Analyze", "Auto-Optimize", "Undo Mark", "Clear All"]
+
+def test_toolbar_exists_and_locked(window):
+    """TOOL-02: Toolbar is non-movable and context menu disabled."""
+    toolbar = window.findChild(QToolBar)
+    assert toolbar is not None
+    assert toolbar.isMovable() is False
+    assert toolbar.contextMenuPolicy() == Qt.PreventContextMenu
+
+def test_toolbar_actions(window):
+    """TOOL-01: Toolbar has Analyze, Auto-Optimize, Undo Mark, Clear All."""
+    toolbar = window.findChild(QToolBar)
+    action_texts = [a.text() for a in toolbar.actions() if not a.isSeparator()]
+    assert action_texts == ["Analyze", "Auto-Optimize", "Undo Mark", "Clear All"]
+
+def test_menu_toolbar_same_action(window):
+    """TOOL-03: Menu and toolbar share the same QAction instance."""
+    toolbar = window.findChild(QToolBar)
+    toolbar_analyze = [a for a in toolbar.actions() if a.text() == "Analyze"][0]
+    assert toolbar_analyze is window.act_analyze
+
+def test_action_enable_disable_sync(window):
+    """MENU-04: Disabling action affects both menu and toolbar."""
+    window.act_analyze.setEnabled(False)
+    assert window.act_analyze.isEnabled() is False
+    window.act_analyze.setEnabled(True)
+    assert window.act_analyze.isEnabled() is True

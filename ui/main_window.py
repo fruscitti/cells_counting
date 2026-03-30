@@ -5,10 +5,11 @@ from PySide6.QtWidgets import (
     QMainWindow, QWidget, QHBoxLayout, QVBoxLayout,
     QPushButton, QListWidget, QLabel, QProgressBar,
     QSplitter, QTableWidget, QTableWidgetItem, QHeaderView,
-    QFileDialog, QDialog, QInputDialog, QMessageBox, QScrollArea
+    QFileDialog, QDialog, QInputDialog, QMessageBox, QScrollArea,
+    QToolBar
 )
 from PySide6.QtCore import Qt, QThreadPool, QTimer, QSettings
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QAction
 
 from ui.scaled_image_label import ScaledImageLabel
 from ui.image_utils import numpy_rgb_to_pixmap
@@ -37,8 +38,85 @@ class MainWindow(QMainWindow):
         self._update_status_bar()
         QTimer.singleShot(0, self._restore_splitter_state)
 
+    def _build_actions(self):
+        """Create shared QAction instances for all commands (D-08)."""
+        # File actions
+        self.act_open_images = QAction("Open Images", self)
+        self.act_open_images.setMenuRole(QAction.MenuRole.NoRole)
+        self.act_open_batch = QAction("Open Batch", self)
+        self.act_open_batch.setMenuRole(QAction.MenuRole.NoRole)
+        self.act_save_batch = QAction("Save Batch", self)
+        self.act_save_batch.setMenuRole(QAction.MenuRole.NoRole)
+        self.act_save_batch.setEnabled(False)
+        self.act_export_csv = QAction("Export CSV", self)
+        self.act_export_csv.setMenuRole(QAction.MenuRole.NoRole)
+        self.act_export_csv.setEnabled(False)
+        self.act_exit = QAction("Exit", self)
+        self.act_exit.setMenuRole(QAction.MenuRole.NoRole)
+
+        # Batch actions
+        self.act_add_images = QAction("Add Images", self)
+        self.act_add_images.setMenuRole(QAction.MenuRole.NoRole)
+        self.act_add_images.setEnabled(False)
+        self.act_remove_image = QAction("Remove Image", self)
+        self.act_remove_image.setMenuRole(QAction.MenuRole.NoRole)
+        self.act_remove_image.setEnabled(False)
+        self.act_re_analyze = QAction("Re-Analyze", self)
+        self.act_re_analyze.setMenuRole(QAction.MenuRole.NoRole)
+        self.act_re_analyze.setEnabled(False)
+
+        # Analysis actions
+        self.act_analyze = QAction("Analyze", self)
+        self.act_analyze.setMenuRole(QAction.MenuRole.NoRole)
+        self.act_analyze.setEnabled(False)
+        self.act_auto_optimize = QAction("Auto-Optimize", self)
+        self.act_auto_optimize.setMenuRole(QAction.MenuRole.NoRole)
+        self.act_auto_optimize.setEnabled(False)
+        self.act_undo_mark = QAction("Undo Mark", self)
+        self.act_undo_mark.setMenuRole(QAction.MenuRole.NoRole)
+        self.act_undo_mark.setEnabled(False)
+        self.act_clear = QAction("Clear All", self)
+        self.act_clear.setMenuRole(QAction.MenuRole.NoRole)
+
+    def _build_menu_bar(self):
+        """Build File, Batch, and Analysis menus (MENU-01/02/03)."""
+        mb = self.menuBar()
+
+        file_menu = mb.addMenu("File")
+        file_menu.addAction(self.act_open_images)
+        file_menu.addAction(self.act_open_batch)
+        file_menu.addAction(self.act_save_batch)
+        file_menu.addAction(self.act_export_csv)
+        file_menu.addSeparator()
+        file_menu.addAction(self.act_exit)
+
+        batch_menu = mb.addMenu("Batch")
+        batch_menu.addAction(self.act_add_images)
+        batch_menu.addAction(self.act_remove_image)
+        batch_menu.addAction(self.act_re_analyze)
+
+        analysis_menu = mb.addMenu("Analysis")
+        analysis_menu.addAction(self.act_analyze)
+        analysis_menu.addAction(self.act_auto_optimize)
+        analysis_menu.addAction(self.act_undo_mark)
+        analysis_menu.addAction(self.act_clear)
+
+    def _build_toolbar(self):
+        """Build locked toolbar with analysis actions (TOOL-01/02, D-05/D-06/D-07)."""
+        toolbar = self.addToolBar("Main")
+        toolbar.setMovable(False)
+        toolbar.setContextMenuPolicy(Qt.PreventContextMenu)
+        toolbar.setToolButtonStyle(Qt.ToolButtonTextOnly)
+        toolbar.addAction(self.act_analyze)
+        toolbar.addAction(self.act_auto_optimize)
+        toolbar.addAction(self.act_undo_mark)
+        toolbar.addAction(self.act_clear)
+
     def _build_ui(self):
         """Build the main UI layout."""
+        self._build_actions()
+        self._build_menu_bar()
+        self._build_toolbar()
         central = QWidget()
         self.setCentralWidget(central)
         main_layout = QHBoxLayout(central)
@@ -286,6 +364,20 @@ class MainWindow(QMainWindow):
 
     def _connect_signals(self):
         """Wire up signals to slots."""
+        # Action signals (shared QAction triggered → existing slots)
+        self.act_open_images.triggered.connect(self._on_open_images)
+        self.act_open_batch.triggered.connect(self._on_open_batch)
+        self.act_save_batch.triggered.connect(self._on_save_batch)
+        self.act_export_csv.triggered.connect(self._on_export_csv)
+        self.act_exit.triggered.connect(self.close)
+        self.act_add_images.triggered.connect(self._on_add_images)
+        self.act_remove_image.triggered.connect(self._on_remove_image)
+        self.act_re_analyze.triggered.connect(self._on_re_analyze)
+        self.act_analyze.triggered.connect(self._on_analyze)
+        self.act_auto_optimize.triggered.connect(self._on_auto_optimize)
+        self.act_undo_mark.triggered.connect(self._on_undo_mark)
+        self.act_clear.triggered.connect(self._on_clear)
+
         self.open_btn.clicked.connect(self._on_open_images)
         self.image_list.currentItemChanged.connect(self._on_image_selected)
         self.clear_btn.clicked.connect(self._on_clear)
