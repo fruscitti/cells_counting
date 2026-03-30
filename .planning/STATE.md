@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: — Fluorescence Cell Counter Web App
-status: Ready to execute
-last_updated: "2026-03-30T01:16:52.154Z"
+status: Phase complete — ready for verification
+last_updated: "2026-03-30T01:22:16.146Z"
 progress:
   total_phases: 1
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 2
+  completed_plans: 3
 ---
 
 # Project State
@@ -16,7 +16,7 @@ progress:
 **Project:** Fluorescence Cell Counter — Desktop App + Batch Management
 **Milestone:** v2.0
 **Branch:** local-ui
-**Last updated:** 2026-03-30 — Completed Plan 02-02 (Parameter Controls + Analysis Engine)
+**Last updated:** 2026-03-30 — Completed Plan 02-03 (Manual Annotation + Clear + Polish) — Phase 2 COMPLETE
 
 ## Project Reference
 
@@ -27,17 +27,16 @@ See: .planning/PROJECT.md (updated 2026-03-29)
 
 ## Current Position
 
-Phase: 02 (desktop-gui) — EXECUTING
-Plan: 3 of 3
-Planning complete. Ready to begin execution.
+Phase: 02 (desktop-gui) — COMPLETE (3/3 plans done)
+Plan: 3 of 3 — DONE
 
-Next step: `/gsd:plan-phase 2`
+Next step: Phase 3 (Batch Management) or run `/gsd:transition`
 
 ## Phase Status
 
 | Phase | Name | Status |
 |-------|------|--------|
-| 2 | Desktop GUI | ◐ In Progress (2/3 plans done) |
+| 2 | Desktop GUI | ● Complete (3/3 plans done) |
 | 3 | Batch Management | ○ Pending |
 
 ## Key Decisions Made in Planning
@@ -60,3 +59,7 @@ Next step: `/gsd:plan-phase 2`
 - Plan 02-02: AnalysisSignals placed on QObject subclass (not QRunnable) — Qt requires signals on QObject
 - Plan 02-02: Workers import analysis_core inside run() to avoid circular imports at module load time
 - Plan 02-02: param_panel fixture calls panel.show() so Qt isVisible() correctly reflects child widget visibility (parent chain check)
+- Plan 02-03: _redraw_annotated always draws fresh on base annotated_rgb (no mutation of stored state)
+- Plan 02-03: _on_clear calls param_panel.reset_defaults() for full parameter reset (CLR-01)
+- Plan 02-03: undo_mark_btn enabled/disabled based on marks list length for accurate UI affordance
+- Plan 02-03: from analysis_core import draw_manual_marks placed inside method body to avoid circular imports

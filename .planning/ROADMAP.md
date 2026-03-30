@@ -17,7 +17,7 @@
 
 | Phase | Name | Plans | Status | Goal |
 |-------|------|-------|--------|------|
-| 2 | Desktop GUI | 2/3 | In Progress|  |
+| 2 | Desktop GUI | 3/3 | Complete   | 2026-03-30 |
 | 3 | Batch Management | 2 | ○ Pending | Save, open, re-analyze, add/remove images |
 
 ---
@@ -38,12 +38,12 @@
 - Clear resets to defaults
 - Results table shows all filenames + counts
 
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 - [x] 02-01-PLAN.md — App Scaffold + Image Display
 - [x] 02-02-PLAN.md — Parameter Controls + Analysis Engine
-- [ ] 02-03-PLAN.md — Manual Annotation + Clear + Polish
+- [x] 02-03-PLAN.md — Manual Annotation + Clear + Polish
 
 #### Plan 2.1 — App Scaffold + Image Display
 

@@ -42,13 +42,13 @@
 
 ### Manual Annotation
 
-- [ ] **MARK-01**: Click on the annotated image to add a manual mark (green circle + "M{n}" label)
-- [ ] **MARK-02**: "Undo Mark" button removes the last manual mark
-- [ ] **MARK-03**: Total count shown = algo count + manual mark count
+- [x] **MARK-01**: Click on the annotated image to add a manual mark (green circle + "M{n}" label)
+- [x] **MARK-02**: "Undo Mark" button removes the last manual mark
+- [x] **MARK-03**: Total count shown = algo count + manual mark count
 
 ### Clear / Reset
 
-- [ ] **CLR-01**: "Clear" button resets all loaded images, results, and marks; resets parameters to defaults
+- [x] **CLR-01**: "Clear" button resets all loaded images, results, and marks; resets parameters to defaults
 
 ### Batch Save
 
@@ -110,7 +110,7 @@
 | PARAM-01–07 | Phase 1 | Pending |
 | ANAL-01–07 | Phase 1 | Pending |
 | MARK-01–03 | Phase 1 | Pending |
-| CLR-01 | Phase 1 | Pending |
+| CLR-01 | Phase 1 | Complete |
 | BATCH-01–06 | Phase 2 | Pending |
 | BMGR-01–07 | Phase 2 | Pending |
 
