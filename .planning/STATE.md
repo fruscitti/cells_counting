@@ -1,9 +1,10 @@
 ---
 gsd_state_version: 1.0
-milestone: v3.0
-milestone_name: UI Redesign
-status: Roadmap defined
-last_updated: "2026-03-30"
+milestone: v1.0
+milestone_name: — Fluorescence Cell Counter Web App
+status: planning
+last_updated: "2026-03-30T22:13:57.767Z"
+last_activity: 2026-03-30 — v3.0 roadmap defined (3 phases, 17 requirements)
 progress:
   total_phases: 3
   completed_phases: 0
@@ -96,10 +97,12 @@ v3.0 Progress: [░░░░░░░░░░] 0% (0/3 phases complete)
 ## Accumulated Context
 
 ### Key Todos for Phase 4
+
 - Check main_window.py for existing QSettings usage before implementing splitter state persistence
 - Decide whether progress_bar stays in sidebar or moves to status bar (visual preference call)
 
 ### Blockers
+
 None.
 
 ### Quick Tasks Completed
