@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (
     QMainWindow, QWidget, QHBoxLayout, QVBoxLayout,
     QPushButton, QListWidget, QLabel, QProgressBar,
     QSplitter, QTableWidget, QTableWidgetItem, QHeaderView,
-    QFileDialog
+    QFileDialog, QDialog, QInputDialog, QMessageBox
 )
 from PySide6.QtCore import Qt, QThreadPool
 from PySide6.QtGui import QFont
@@ -13,6 +13,8 @@ from PySide6.QtGui import QFont
 from ui.scaled_image_label import ScaledImageLabel
 from ui.image_utils import numpy_rgb_to_pixmap
 from ui.param_panel import ParamPanel
+from batch_manager import BatchManager
+from ui.batch_dialogs import OpenBatchDialog
 
 
 class MainWindow(QMainWindow):
@@ -25,6 +27,7 @@ class MainWindow(QMainWindow):
         self._file_paths = []       # list of absolute paths to loaded images
         self._images = {}           # {filename: {"original_bgr": ndarray, "original_rgb": ndarray, "annotated_rgb": ndarray | None, "algo_count": 0, "manual_marks": []}}
         self._current_file = None   # currently selected filename
+        self._current_batch_dir = None  # Path to currently open batch directory, or None
 
         self.setWindowTitle("Cell Counter")
         self.setMinimumSize(1024, 700)
@@ -67,6 +70,13 @@ class MainWindow(QMainWindow):
 
         self.clear_btn = QPushButton("Clear")
         left_layout.addWidget(self.clear_btn)
+
+        self.save_batch_btn = QPushButton("Save Batch")
+        self.save_batch_btn.setEnabled(False)
+        left_layout.addWidget(self.save_batch_btn)
+
+        self.open_batch_btn = QPushButton("Open Batch")
+        left_layout.addWidget(self.open_batch_btn)
 
         self.undo_mark_btn = QPushButton("Undo Mark")
         self.undo_mark_btn.setEnabled(False)
@@ -135,6 +145,8 @@ class MainWindow(QMainWindow):
         self.auto_optimize_btn.clicked.connect(self._on_auto_optimize)
         self.annotated_label.clicked.connect(self._on_annotated_click)
         self.undo_mark_btn.clicked.connect(self._on_undo_mark)
+        self.save_batch_btn.clicked.connect(self._on_save_batch)
+        self.open_batch_btn.clicked.connect(self._on_open_batch)
 
     # ---- Public API ----
 
@@ -166,6 +178,7 @@ class MainWindow(QMainWindow):
             # Select first item if nothing selected
             if self.image_list.currentRow() < 0:
                 self.image_list.setCurrentRow(0)
+        self._update_batch_buttons()
 
     # ---- Private slots ----
 
@@ -253,6 +266,7 @@ class MainWindow(QMainWindow):
         self._images.clear()
         self._file_paths.clear()
         self._current_file = None
+        self._current_batch_dir = None
 
         # Clear UI widgets
         self.image_list.clear()
@@ -274,8 +288,9 @@ class MainWindow(QMainWindow):
         self.auto_optimize_btn.setEnabled(False)
         self.undo_mark_btn.setEnabled(False)
 
-        # Reset window title (no batch context in Phase 2)
+        # Reset window title
         self.setWindowTitle("Cell Counter")
+        self._update_batch_buttons()
 
     # ---- Analysis worker slots ----
 
@@ -374,3 +389,101 @@ class MainWindow(QMainWindow):
         self.status_label.setText(
             f"Optimized: brightness={brightness}, area={min_area}, blur={blur} ({count} cells)"
         )
+
+    # ---- Batch management slots ----
+
+    def _update_batch_buttons(self):
+        """Enable/disable Save Batch button based on whether images are loaded."""
+        self.save_batch_btn.setEnabled(bool(self._images))
+
+    def _on_save_batch(self):
+        """Save current session as a named batch."""
+        name, ok = QInputDialog.getText(self, "Save Batch", "Batch name:")
+        if not ok or not name.strip():
+            return
+        params = self.param_panel.get_params()
+        batch_dir = BatchManager.save_batch(name.strip(), self._images, params)
+        self._current_batch_dir = batch_dir
+        self.setWindowTitle(f"Cell Counter — {name.strip()}")
+        self.status_label.setText(f"Batch saved: {batch_dir.name}")
+
+    def _on_open_batch(self):
+        """Show dialog to open a saved batch."""
+        batches = BatchManager.list_batches()
+        if not batches:
+            QMessageBox.information(self, "Open Batch", "No saved batches found.")
+            return
+        dlg = OpenBatchDialog(batches, parent=self)
+        if dlg.exec() != QDialog.Accepted:
+            return
+        batch_path = dlg.selected_path()
+        if batch_path is None:
+            return
+        self._load_batch_from_path(batch_path)
+
+    def _load_batch_from_path(self, batch_dir):
+        """Restore application state from a saved batch directory.
+
+        Clears current state, then loads images, parameters, annotated results,
+        and manual marks from the batch. Warns if any images are missing.
+        """
+        from pathlib import Path
+        batch_dir = Path(batch_dir)
+
+        # Reset current state first
+        self._on_clear()
+
+        manifest = BatchManager.load_batch(batch_dir)
+        self._current_batch_dir = batch_dir
+        self.param_panel.set_params(manifest["parameters"])
+
+        missing_count = 0
+        for entry in manifest["images"]:
+            if entry["status"] == "missing":
+                missing_count += 1
+                continue
+
+            filename = entry["filename"]
+            orig_bgr = cv2.imread(str(batch_dir / filename))
+            if orig_bgr is None:
+                missing_count += 1
+                continue
+
+            orig_rgb = cv2.cvtColor(orig_bgr, cv2.COLOR_BGR2RGB)
+
+            # Load annotated image if it exists
+            annotated_rgb = None
+            if entry.get("annotated_filename"):
+                ann_path = batch_dir / entry["annotated_filename"]
+                if ann_path.exists():
+                    ann_bgr = cv2.imread(str(ann_path))
+                    if ann_bgr is not None:
+                        annotated_rgb = cv2.cvtColor(ann_bgr, cv2.COLOR_BGR2RGB)
+
+            self._images[filename] = {
+                "original_bgr": orig_bgr,
+                "original_rgb": orig_rgb,
+                "annotated_rgb": annotated_rgb,
+                "algo_count": entry.get("cell_count", 0),
+                "manual_marks": list(entry.get("manual_marks", [])),
+            }
+            self._file_paths.append(str(batch_dir / filename))
+            self.image_list.addItem(filename)
+
+        if self._images:
+            self.analyze_btn.setEnabled(True)
+            self.auto_optimize_btn.setEnabled(True)
+            if self.image_list.currentRow() < 0:
+                self.image_list.setCurrentRow(0)
+
+        if missing_count > 0:
+            QMessageBox.warning(
+                self,
+                "Missing Images",
+                f"{missing_count} image(s) could not be found and were skipped."
+            )
+
+        batch_name = manifest.get("name", batch_dir.name)
+        self.setWindowTitle(f"Cell Counter — {batch_name}")
+        self.status_label.setText(f"Batch opened: {batch_name}")
+        self._update_batch_buttons()
