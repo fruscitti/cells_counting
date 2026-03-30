@@ -54,6 +54,7 @@ def process_image(img_bgr, brightness_threshold, min_cell_area, blur_strength, u
     num_labels, labels_map, stats, centroids = cv2.connectedComponentsWithStats(thresh)
     count = 0
     viz = img_bgr.copy()
+    centroids_list = []
     h, w = img_bgr.shape[:2]
     for i in range(1, num_labels):
         area = stats[i, cv2.CC_STAT_AREA]
@@ -76,16 +77,18 @@ def process_image(img_bgr, brightness_threshold, min_cell_area, blur_strength, u
                 global_cx = x0 + local_cx
                 global_cy = y0 + local_cy
                 count += 1
+                centroids_list.append((global_cx, global_cy))
                 cv2.circle(viz, (global_cx, global_cy), 18, (0, 0, 255), 2)
                 cv2.putText(viz, str(count), (global_cx - 10, global_cy - 25),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
         else:
             count += 1
             cx, cy = centroids[i]
+            centroids_list.append((int(cx), int(cy)))
             cv2.circle(viz, (int(cx), int(cy)), 18, (0, 0, 255), 2)
             cv2.putText(viz, str(count), (int(cx) - 10, int(cy) - 25),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
-    return viz, count
+    return viz, count, centroids_list
 
 
 def optimize_parameters(img_bgr, use_cleaning=True):
@@ -106,7 +109,7 @@ def optimize_parameters(img_bgr, use_cleaning=True):
     results = {}
     for b, a, bl in itertools.product(brightness_vals, area_vals, blur_vals):
         # Grid search does NOT use max_cell_area / watershed (separate concern)
-        _, count = process_image(img_small, b, a, bl, use_cleaning)
+        _, count, _ = process_image(img_small, b, a, bl, use_cleaning)
         results[(b, a, bl)] = count
 
     # Stability scoring: for each combo, count neighbors with same count
