@@ -351,6 +351,7 @@ class MainWindow(QMainWindow):
         self.annotated_label.setText("")
         total = entry["algo_count"] + len(entry["manual_marks"])
         self.count_label.setText(f"Cell Count: {total}")
+        self._update_results_row(self._current_file, total)
 
     def _on_clear(self):
         """CLR-01: Reset all state to defaults."""
