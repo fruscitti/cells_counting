@@ -31,7 +31,7 @@ class ParamPanel(QWidget):
         "blur_strength": 9,
         "max_cell_area": 500,
         "use_cleaning": True,
-        "use_tophat": False,
+        "use_tophat": True,
         "tophat_kernel": 50,
         "adaptive_block": 99,
         "adaptive_c": -5,
@@ -109,7 +109,7 @@ class ParamPanel(QWidget):
 
         # --- Use Top-Hat ---
         self.tophat_checkbox = QCheckBox("Use Top-Hat")
-        self.tophat_checkbox.setChecked(False)
+        self.tophat_checkbox.setChecked(True)
         layout.addWidget(self.tophat_checkbox)
 
         # Top-Hat sub-controls container
@@ -161,7 +161,7 @@ class ParamPanel(QWidget):
         tophat_layout.addLayout(row)
 
         layout.addWidget(self.tophat_container)
-        self.tophat_container.setVisible(False)
+        self.tophat_container.setVisible(True)
         self.tophat_checkbox.toggled.connect(self.tophat_container.setVisible)
 
     def get_params(self) -> dict:
