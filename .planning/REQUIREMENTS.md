@@ -148,13 +148,6 @@
 | CLR-01 | Phase 2 | Complete |
 | BATCH-01–06 | Phase 3 | Complete |
 | BMGR-01–07 | Phase 3 | Complete |
-| MENU-01 | Phase 4 | Pending |
-| MENU-02 | Phase 4 | Pending |
-| MENU-03 | Phase 4 | Pending |
-| MENU-04 | Phase 4 | Pending |
-| TOOL-01 | Phase 4 | Pending |
-| TOOL-02 | Phase 4 | Pending |
-| TOOL-03 | Phase 4 | Pending |
 | SIDE-01 | Phase 4 | Pending |
 | SIDE-02 | Phase 4 | Pending |
 | SIDE-03 | Phase 4 | Pending |
@@ -162,16 +155,16 @@
 | STAT-02 | Phase 4 | Pending |
 | STAT-03 | Phase 4 | Pending |
 | STAT-04 | Phase 4 | Pending |
-| KEYS-01 | Phase 4 | Pending |
-| KEYS-02 | Phase 4 | Pending |
-| KEYS-03 | Phase 4 | Pending |
-
-
-
-
-
-
-
+| MENU-01 | Phase 5 | Pending |
+| MENU-02 | Phase 5 | Pending |
+| MENU-03 | Phase 5 | Pending |
+| MENU-04 | Phase 5 | Pending |
+| TOOL-01 | Phase 5 | Pending |
+| TOOL-02 | Phase 5 | Pending |
+| TOOL-03 | Phase 5 | Pending |
+| KEYS-01 | Phase 6 | Pending |
+| KEYS-02 | Phase 6 | Pending |
+| KEYS-03 | Phase 6 | Pending |
 
 **Coverage:**
 - v1/v2 requirements: 36 total (all Complete)
@@ -181,4 +174,4 @@
 
 ---
 *Requirements defined: 2026-03-29*
-*Last updated: 2026-03-30 after v3.0 milestone start*
+*Last updated: 2026-03-30 after v3.0 roadmap created (Phases 4–6)*

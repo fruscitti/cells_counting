@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: UI Redesign
-status: Defining requirements
+status: Roadmap defined
 last_updated: "2026-03-30"
 progress:
-  total_phases: 0
+  total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -15,22 +15,26 @@ progress:
 
 **Project:** Fluorescence Cell Counter — Desktop App + Batch Management
 **Milestone:** v3.0 — UI Redesign
-**Branch:** main
-**Last updated:** 2026-03-30 — Milestone v3.0 started
+**Branch:** local-ui
+**Last updated:** 2026-03-30 — Roadmap created for v3.0
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-03-30)
 
 **Core value:** Scientists can analyze fluorescence images offline, save named batches, and return to re-examine or modify sessions without a web browser.
-**Current focus:** Defining requirements for v3.0
+**Current focus:** Phase 4 — Layout Foundation (resizable sidebar + status bar)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-03-30 — Milestone v3.0 started
+Phase: 4 — Layout Foundation
+Plan: Not started
+Status: Roadmap defined, ready to plan Phase 4
+Last activity: 2026-03-30 — v3.0 roadmap defined (3 phases, 17 requirements)
+
+```
+v3.0 Progress: [░░░░░░░░░░] 0% (0/3 phases complete)
+```
 
 ## Phase Status
 
@@ -38,6 +42,9 @@ Last activity: 2026-03-30 — Milestone v3.0 started
 |-------|------|--------|
 | 2 | Desktop GUI | ● Complete (3/3 plans done) |
 | 3 | Batch Management | ● Complete (2/2 plans done) |
+| 4 | Layout Foundation | ○ Not started |
+| 5 | Actions Surface | ○ Not started |
+| 6 | Cleanup and Shortcuts | ○ Not started |
 
 ## Key Decisions Made in Planning
 
@@ -71,6 +78,29 @@ Last activity: 2026-03-30 — Milestone v3.0 started
 - Plan 03-02: _is_analyzing flag guards all batch mutation buttons (prevents Pitfall 3: manifest written mid-analysis)
 - Plan 03-02: status field stripped via img.pop("status", None) before every _atomic_write_manifest in new mutation methods
 - Plan 03-02: test_reanalyze_preserves_marks uses qtbot.waitUntil on _is_analyzing flag (Python method patching doesn't intercept Qt slot dispatch)
+
+## Research Findings for v3.0 (HIGH confidence)
+
+- QAction is in PySide6.QtGui — NOT PySide6.QtWidgets (changed from Qt5; wrong import = ImportError at startup)
+- QAction is a three-for-one: one instance wires menu item + toolbar button + keyboard shortcut simultaneously
+- QMainWindow.menuBar() and .statusBar() are auto-created on first call — no manual instantiation needed
+- Outer QSplitter(Qt.Horizontal) wraps existing left_scroll + right_splitter; replaces setFixedWidth(298)
+- setMinimumWidth(220) on the sidebar widget prevents collapse to zero
+- addPermanentWidget() for always-visible status labels; showMessage() only for ephemeral progress/errors
+- setMovable(False) + PreventContextMenu on toolbar — prevents accidental hide
+- Set QAction.MenuRole.NoRole on all custom actions to prevent macOS menu role hijacking
+- QSplitter.restoreState() must be called after window.show() (or via QTimer.singleShot) — not during __init__
+- After button-to-action rename: grep for old attribute names, expect zero results before proceeding
+- Delete key for image removal: wire via keyPressEvent on image_list widget, not global shortcut
+
+## Accumulated Context
+
+### Key Todos for Phase 4
+- Check main_window.py for existing QSettings usage before implementing splitter state persistence
+- Decide whether progress_bar stays in sidebar or moves to status bar (visual preference call)
+
+### Blockers
+None.
 
 ### Quick Tasks Completed
 

@@ -132,5 +132,67 @@ Plans:
 6. Edge case: handle batch images with `status: missing` during re-analyze (skip + warn)
 
 ---
+
+## Milestone: v3.0 — UI Redesign
+
+**Branch:** `local-ui`
+**Created:** 2026-03-30
+
+## Phases
+
+- [ ] **Phase 4: Layout Foundation** - Resizable sidebar and persistent status bar replace fixed-width panel and floating labels
+- [ ] **Phase 5: Actions Surface** - Menu bar and toolbar wired via shared QAction instances covering all commands
+- [ ] **Phase 6: Cleanup and Shortcuts** - Old buttons removed, enable/disable consolidated, keyboard shortcuts verified
+
+## Phase Details
+
+### Phase 4: Layout Foundation
+**Goal**: Users experience a resizable sidebar and always-visible status bar that show batch name, image count, and cell count at all times
+**Depends on**: Phase 3 (complete)
+**Requirements**: SIDE-01, SIDE-02, SIDE-03, STAT-01, STAT-02, STAT-03, STAT-04
+**Success Criteria** (what must be TRUE):
+  1. User can drag the handle between the left sidebar and the image area to any width and the sidebar stays at that width
+  2. Sidebar cannot be dragged to zero — it stops at a minimum width
+  3. Sidebar contains only the image list and parameter sliders; no action buttons are visible in it
+  4. Status bar at the bottom always shows the current batch name (or "No batch"), image count, and total cell count without the user doing anything
+  5. Transient analysis messages (progress, errors) appear in the status bar and disappear without overwriting the permanent labels
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 5: Actions Surface
+**Goal**: Users can reach every application command from the menu bar or the toolbar with a single click, and the same command is never out-of-sync between the two surfaces
+**Depends on**: Phase 4
+**Requirements**: MENU-01, MENU-02, MENU-03, MENU-04, TOOL-01, TOOL-02, TOOL-03
+**Success Criteria** (what must be TRUE):
+  1. File menu contains Open Images, Open Batch, Save Batch, Export CSV, and Exit; all are reachable by clicking
+  2. Batch menu contains Add Images, Remove Image, and Re-Analyze; all are reachable by clicking
+  3. Analysis menu contains Analyze, Auto-Optimize, Undo Mark, and Clear All; all are reachable by clicking
+  4. Toolbar shows Analyze, Auto-Optimize, Undo Mark, and Clear All as persistent one-click buttons that cannot be hidden or moved
+  5. When a menu item is grayed out, the corresponding toolbar button is also grayed out (and vice versa) — they always match
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 6: Cleanup and Shortcuts
+**Goal**: Users can operate the full application by keyboard alone for common actions, and the left panel shows only the image list and parameters with no redundant buttons
+**Depends on**: Phase 5
+**Requirements**: KEYS-01, KEYS-02, KEYS-03
+**Success Criteria** (what must be TRUE):
+  1. Ctrl+O opens the image file dialog, Ctrl+S saves the current batch, Ctrl+Shift+O opens the batch list — all work without clicking anything
+  2. Ctrl+Z removes the last manual mark; Delete (with an image selected in the list) removes that image from the session
+  3. F5 triggers the Analyze action
+**Plans**: TBD
+**UI hint**: yes
+
+## Progress Table
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 4. Layout Foundation | 0/? | Not started | - |
+| 5. Actions Surface | 0/? | Not started | - |
+| 6. Cleanup and Shortcuts | 0/? | Not started | - |
+
+---
+
 *Roadmap created: 2026-03-29*
+*v3.0 milestone added: 2026-03-30*
 *Branch: local-ui (created before Phase 2 execution)*
