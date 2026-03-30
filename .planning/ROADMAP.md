@@ -159,8 +159,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 04-PLAN-01.md — Write 7 failing tests for Phase 4 requirements (TDD RED phase)
-- [ ] 04-PLAN-02.md — Implement resizable sidebar, hide buttons, wire status bar (TDD GREEN phase)
+- [x] 04-01-PLAN.md — Write 7 failing tests for Phase 4 requirements (TDD RED phase)
+- [ ] 04-02-PLAN.md — Implement resizable sidebar, hide buttons, wire status bar (TDD GREEN phase)
 
 ### Phase 5: Actions Surface
 **Goal**: Users can reach every application command from the menu bar or the toolbar with a single click, and the same command is never out-of-sync between the two surfaces
@@ -190,7 +190,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 4. Layout Foundation | 0/2 | Not started | - |
+| 4. Layout Foundation | 1/2 | In progress | - |
 | 5. Actions Surface | 0/? | Not started | - |
 | 6. Cleanup and Shortcuts | 0/? | Not started | - |
 
