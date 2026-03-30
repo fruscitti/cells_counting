@@ -9,6 +9,7 @@ $BASE   = "https://raw.githubusercontent.com/$REPO/$BRANCH"
 
 $FILES = @(
     "app.py",
+    "icon.png",
     "analysis_core.py",
     "batch_manager.py",
     "main.py",
