@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (
     QSplitter, QTableWidget, QTableWidgetItem, QHeaderView,
     QFileDialog
 )
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QThreadPool
 from PySide6.QtGui import QFont
 
 from ui.scaled_image_label import ScaledImageLabel
@@ -127,6 +127,8 @@ class MainWindow(QMainWindow):
         self.open_btn.clicked.connect(self._on_open_images)
         self.image_list.currentItemChanged.connect(self._on_image_selected)
         self.clear_btn.clicked.connect(self._on_clear)
+        self.analyze_btn.clicked.connect(self._on_analyze)
+        self.auto_optimize_btn.clicked.connect(self._on_auto_optimize)
 
     # ---- Public API ----
 
@@ -210,3 +212,104 @@ class MainWindow(QMainWindow):
         self.auto_optimize_btn.setEnabled(False)
         self.results_table.setRowCount(0)
         self.status_label.setText("Ready")
+
+    # ---- Analysis worker slots ----
+
+    def _collect_params(self) -> dict:
+        """Return current parameter values from the param panel."""
+        return self.param_panel.get_params()
+
+    def _on_analyze(self):
+        """Start background analysis of all loaded images."""
+        if not self._images:
+            return
+        from workers.analysis_worker import AnalysisWorker
+        self.analyze_btn.setEnabled(False)
+        self.auto_optimize_btn.setEnabled(False)
+        self.progress_bar.setMaximum(len(self._images))
+        self.progress_bar.setValue(0)
+        self.progress_bar.setVisible(True)
+        self.status_label.setText("Analyzing...")
+
+        worker = AnalysisWorker(self._images, self._collect_params())
+        worker.signals.image_done.connect(self._on_image_done)
+        worker.signals.progress.connect(self._on_progress)
+        worker.signals.error.connect(self._on_image_error)
+        worker.signals.finished.connect(self._on_analysis_finished)
+        QThreadPool.globalInstance().start(worker)
+
+    def _on_image_done(self, filename: str, annotated_rgb, count: int):
+        """Handle completion of a single image analysis."""
+        self._images[filename]["annotated_rgb"] = annotated_rgb
+        self._images[filename]["algo_count"] = count
+        self._update_results_row(filename, count)
+        if filename == self._current_file:
+            self.annotated_label.setPixmap(numpy_rgb_to_pixmap(annotated_rgb))
+            self.annotated_label.setText("")
+            total = count + len(self._images[filename]["manual_marks"])
+            self.count_label.setText(f"Cell Count: {total}")
+
+    def _on_image_error(self, filename: str, error_msg: str):
+        """Handle analysis error for a single image."""
+        self._images[filename]["algo_count"] = 0
+        self._update_results_row(filename, 0, is_error=True)
+        self.status_label.setText(f"Error processing {filename}")
+
+    def _on_progress(self, current: int, total: int):
+        """Update progress bar and status label."""
+        self.progress_bar.setValue(current)
+        self.status_label.setText(f"Processing {current}/{total}...")
+
+    def _on_analysis_finished(self):
+        """Re-enable buttons and hide progress bar when analysis completes."""
+        self.analyze_btn.setEnabled(True)
+        self.auto_optimize_btn.setEnabled(True)
+        self.progress_bar.setVisible(False)
+        self.status_label.setText("Analysis complete")
+
+    def _update_results_row(self, filename: str, count: int, is_error: bool = False):
+        """Update or insert a row in the results table for the given filename."""
+        count_text = "0 (warning)" if is_error else str(count)
+        # Search for existing row
+        for row in range(self.results_table.rowCount()):
+            item = self.results_table.item(row, 0)
+            if item and item.text() == filename:
+                self.results_table.setItem(row, 1, QTableWidgetItem(count_text))
+                return
+        # Insert new row
+        row = self.results_table.rowCount()
+        self.results_table.insertRow(row)
+        self.results_table.setItem(row, 0, QTableWidgetItem(filename))
+        self.results_table.setItem(row, 1, QTableWidgetItem(count_text))
+
+    # ---- Auto-optimize worker slots ----
+
+    def _on_auto_optimize(self):
+        """Start background parameter optimization on the current image."""
+        if not self._current_file:
+            return
+        from workers.optimize_worker import OptimizeWorker
+        img_bgr = self._images[self._current_file]["original_bgr"]
+        self.auto_optimize_btn.setEnabled(False)
+        self.status_label.setText("Optimizing...")
+
+        worker = OptimizeWorker(img_bgr, self.param_panel.get_params()["use_cleaning"])
+        worker.signals.result.connect(self._on_optimize_result)
+        worker.signals.error.connect(
+            lambda msg: self.status_label.setText(f"Optimize error: {msg}")
+        )
+        worker.signals.finished.connect(
+            lambda: self.auto_optimize_btn.setEnabled(True)
+        )
+        QThreadPool.globalInstance().start(worker)
+
+    def _on_optimize_result(self, brightness: int, min_area: int, blur: int, count: int):
+        """Apply optimized parameters to the param panel."""
+        self.param_panel.set_params({
+            "brightness_threshold": brightness,
+            "min_cell_area": min_area,
+            "blur_strength": blur,
+        })
+        self.status_label.setText(
+            f"Optimized: brightness={brightness}, area={min_area}, blur={blur} ({count} cells)"
+        )
