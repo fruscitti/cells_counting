@@ -34,6 +34,8 @@ class MainWindow(QMainWindow):
 
         self._build_ui()
         self._connect_signals()
+        self._update_status_bar()
+        QTimer.singleShot(0, self._restore_splitter_state)
 
     def _build_ui(self):
         """Build the main UI layout."""
@@ -270,6 +272,18 @@ class MainWindow(QMainWindow):
         c = total_cells
         self._status_cells_lbl.setText(f"{c} cell{'s' if c != 1 else ''}")
 
+    def _restore_splitter_state(self):
+        """Restore sidebar splitter position after window geometry is resolved."""
+        settings = QSettings("CellCounter", "Layout")
+        state = settings.value("sidebar_splitter")
+        if state:
+            self.outer_splitter.restoreState(state)
+
+    def closeEvent(self, event):
+        settings = QSettings("CellCounter", "Layout")
+        settings.setValue("sidebar_splitter", self.outer_splitter.saveState())
+        super().closeEvent(event)
+
     def _connect_signals(self):
         """Wire up signals to slots."""
         self.open_btn.clicked.connect(self._on_open_images)
@@ -323,6 +337,7 @@ class MainWindow(QMainWindow):
             if self.image_list.currentRow() < 0:
                 self.image_list.setCurrentRow(0)
         self._update_batch_buttons()
+        self._update_status_bar()
 
     # ---- Private slots ----
 
@@ -436,6 +451,7 @@ class MainWindow(QMainWindow):
         total = len(active) + len(entry["manual_marks"])
         self.count_label.setText(f"Cell Count: {total}")
         self._update_results_row(self._current_file, total)
+        self._update_status_bar()
 
     def _on_clear(self):
         """CLR-01: Reset all state to defaults."""
@@ -468,6 +484,7 @@ class MainWindow(QMainWindow):
         # Reset window title
         self.setWindowTitle("Cell Counter")
         self._update_batch_buttons()
+        self._update_status_bar()
 
     # ---- Analysis worker slots ----
 
@@ -505,6 +522,7 @@ class MainWindow(QMainWindow):
         self._update_results_row(filename, count)
         if filename == self._current_file:
             self._redraw_annotated()
+        self._update_status_bar()
 
     def _on_image_error(self, filename: str, error_msg: str):
         """Handle analysis error for a single image."""
@@ -731,6 +749,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(f"Cell Counter — {batch_name}")
         self.status_label.setText(f"Batch opened: {batch_name}")
         self._update_batch_buttons()
+        self._update_status_bar()
 
     def _on_add_images(self):
         """Add new images to the currently open batch."""
@@ -779,6 +798,7 @@ class MainWindow(QMainWindow):
         self.annotated_label.setText("Annotated")
         self.count_label.setText("Cell Count: 0")
         self._update_batch_buttons()
+        self._update_status_bar()
 
     def _on_re_analyze(self):
         """Re-analyze all batch images with current parameters, preserving manual marks."""
@@ -816,6 +836,7 @@ class MainWindow(QMainWindow):
         active_algo = len(self._images[filename]["algo_centroids"])
         total = active_algo + len(self._images[filename]["manual_marks"])
         self._update_results_row(filename, total)
+        self._update_status_bar()
 
     def _on_reanalyze_finished(self):
         """Handle re-analysis completion: update manifest and restore button state."""
