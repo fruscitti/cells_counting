@@ -370,17 +370,55 @@ class MainWindow(QMainWindow):
     def _update_results_row(self, filename: str, count: int, is_error: bool = False):
         """Update or insert a row in the results table for the given filename."""
         count_text = "0 (warning)" if is_error else str(count)
-        # Search for existing row
+        # Search for existing row (skip Total row)
         for row in range(self.results_table.rowCount()):
             item = self.results_table.item(row, 0)
             if item and item.text() == filename:
                 self.results_table.setItem(row, 1, QTableWidgetItem(count_text))
+                self._refresh_total_row()
                 return
         # Insert new row
         row = self.results_table.rowCount()
         self.results_table.insertRow(row)
         self.results_table.setItem(row, 0, QTableWidgetItem(filename))
         self.results_table.setItem(row, 1, QTableWidgetItem(count_text))
+        self._refresh_total_row()
+
+    def _refresh_total_row(self):
+        """Insert or update a bold Total row at the bottom of the results table."""
+        total = 0
+        total_row_index = -1
+
+        for row in range(self.results_table.rowCount()):
+            item = self.results_table.item(row, 0)
+            if item and item.text() == "Total":
+                total_row_index = row
+                continue
+            count_item = self.results_table.item(row, 1)
+            if count_item:
+                # Handle "0 (warning)" format
+                text = count_item.text().split()[0]
+                try:
+                    total += int(text)
+                except ValueError:
+                    pass
+
+        bold_font = QFont()
+        bold_font.setBold(True)
+
+        label_item = QTableWidgetItem("Total")
+        label_item.setFont(bold_font)
+        count_item = QTableWidgetItem(str(total))
+        count_item.setFont(bold_font)
+
+        if total_row_index >= 0:
+            self.results_table.setItem(total_row_index, 0, label_item)
+            self.results_table.setItem(total_row_index, 1, count_item)
+        else:
+            row = self.results_table.rowCount()
+            self.results_table.insertRow(row)
+            self.results_table.setItem(row, 0, label_item)
+            self.results_table.setItem(row, 1, count_item)
 
     # ---- Auto-optimize worker slots ----
 
@@ -508,6 +546,8 @@ class MainWindow(QMainWindow):
             }
             self._file_paths.append(str(batch_dir / filename))
             self.image_list.addItem(filename)
+            total = entry.get("cell_count", 0) + len(entry.get("manual_marks", []))
+            self._update_results_row(filename, total)
 
         if self._images:
             self.analyze_btn.setEnabled(True)
