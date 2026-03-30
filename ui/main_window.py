@@ -385,18 +385,19 @@ class MainWindow(QMainWindow):
         self._refresh_total_row()
 
     def _refresh_total_row(self):
-        """Insert or update a bold Total row at the bottom of the results table."""
-        total = 0
-        total_row_index = -1
-
-        for row in range(self.results_table.rowCount()):
+        """Remove any existing Total row, sum all image rows, re-append Total at the end."""
+        # Remove existing Total row first
+        for row in range(self.results_table.rowCount() - 1, -1, -1):
             item = self.results_table.item(row, 0)
             if item and item.text() == "Total":
-                total_row_index = row
-                continue
+                self.results_table.removeRow(row)
+                break
+
+        # Sum remaining (image) rows
+        total = 0
+        for row in range(self.results_table.rowCount()):
             count_item = self.results_table.item(row, 1)
             if count_item:
-                # Handle "0 (warning)" format
                 text = count_item.text().split()[0]
                 try:
                     total += int(text)
@@ -406,19 +407,14 @@ class MainWindow(QMainWindow):
         bold_font = QFont()
         bold_font.setBold(True)
 
+        last = self.results_table.rowCount()
+        self.results_table.insertRow(last)
         label_item = QTableWidgetItem("Total")
         label_item.setFont(bold_font)
         count_item = QTableWidgetItem(str(total))
         count_item.setFont(bold_font)
-
-        if total_row_index >= 0:
-            self.results_table.setItem(total_row_index, 0, label_item)
-            self.results_table.setItem(total_row_index, 1, count_item)
-        else:
-            row = self.results_table.rowCount()
-            self.results_table.insertRow(row)
-            self.results_table.setItem(row, 0, label_item)
-            self.results_table.setItem(row, 1, count_item)
+        self.results_table.setItem(last, 0, label_item)
+        self.results_table.setItem(last, 1, count_item)
 
     # ---- Auto-optimize worker slots ----
 
