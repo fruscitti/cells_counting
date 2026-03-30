@@ -34,9 +34,14 @@ Scientists can analyze fluorescence images offline, save their work as named bat
 
 ### Active
 
-- [ ] Menu bar with File, Batch, and Analysis menus
-- [ ] Toolbar with primary analysis actions
 - [ ] Keyboard shortcuts for common actions
+
+### Validated in Phase 5
+
+- ✓ Menu bar with File, Batch, and Analysis menus — Validated in Phase 5: actions-surface
+- ✓ Toolbar with primary analysis actions — Validated in Phase 5: actions-surface
+- ✓ Shared QAction instances (menu and toolbar share same objects) — Validated in Phase 5: actions-surface
+- ✓ Centralized enable/disable logic via QAction.setEnabled() — Validated in Phase 5: actions-surface
 
 ### Validated in Phase 4
 
@@ -117,4 +122,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-30 after Phase 4 complete — resizable sidebar, hidden buttons, persistent status bar all verified green*
+*Last updated: 2026-03-30 after Phase 5 complete — menu bar, toolbar, QAction migration all verified green*
