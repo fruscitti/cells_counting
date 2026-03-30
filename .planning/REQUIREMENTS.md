@@ -22,23 +22,23 @@
 
 ### Parameter Controls
 
-- [ ] **PARAM-01**: Brightness Threshold slider (range 0–255, default 120, step 1)
-- [ ] **PARAM-02**: Min Cell Area slider (range 1–500 px, default 25, step 1)
-- [ ] **PARAM-03**: Blur Strength spinbox (range 1–31, default 9, step 2 — enforces odd numbers)
-- [ ] **PARAM-04**: Max Cell Area slider (range 50–5000 px, default 500, step 10)
-- [ ] **PARAM-05**: Use Cleaning checkbox (default checked)
-- [ ] **PARAM-06**: Use Top-Hat checkbox with sub-controls: Top-Hat Kernel (range 10–200, default 50), Adaptive Block (range 3–199 odd, default 99), Adaptive C (range -50–50, default -5) — shown/hidden based on checkbox
-- [ ] **PARAM-07**: Each slider/spinbox shows its current numeric value next to it
+- [x] **PARAM-01**: Brightness Threshold slider (range 0–255, default 120, step 1)
+- [x] **PARAM-02**: Min Cell Area slider (range 1–500 px, default 25, step 1)
+- [x] **PARAM-03**: Blur Strength spinbox (range 1–31, default 9, step 2 — enforces odd numbers)
+- [x] **PARAM-04**: Max Cell Area slider (range 50–5000 px, default 500, step 10)
+- [x] **PARAM-05**: Use Cleaning checkbox (default checked)
+- [x] **PARAM-06**: Use Top-Hat checkbox with sub-controls: Top-Hat Kernel (range 10–200, default 50), Adaptive Block (range 3–199 odd, default 99), Adaptive C (range -50–50, default -5) — shown/hidden based on checkbox
+- [x] **PARAM-07**: Each slider/spinbox shows its current numeric value next to it
 
 ### Analysis
 
-- [ ] **ANAL-01**: "Analyze" button runs `process_image()` on all loaded images with current parameters
-- [ ] **ANAL-02**: Processing runs in a background thread (QRunnable) — UI does not freeze
-- [ ] **ANAL-03**: Progress is indicated while analysis runs (progress bar or status label)
+- [x] **ANAL-01**: "Analyze" button runs `process_image()` on all loaded images with current parameters
+- [x] **ANAL-02**: Processing runs in a background thread (QRunnable) — UI does not freeze
+- [x] **ANAL-03**: Progress is indicated while analysis runs (progress bar or status label)
 - [x] **ANAL-04**: Side-by-side display of original and annotated image for the selected image (aspect-ratio preserved, scales with window resize)
 - [x] **ANAL-05**: Cell count displayed prominently for the selected image
-- [ ] **ANAL-06**: Results table shows filename + cell count for all analyzed images
-- [ ] **ANAL-07**: "Auto-Optimize" button runs grid search on the selected image and updates sliders to best parameters
+- [x] **ANAL-06**: Results table shows filename + cell count for all analyzed images
+- [x] **ANAL-07**: "Auto-Optimize" button runs grid search on the selected image and updates sliders to best parameters
 
 ### Manual Annotation
 
