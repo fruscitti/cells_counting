@@ -74,7 +74,43 @@
 
 ---
 
-## v2 Requirements
+## v3.0 Requirements
+
+### Menu Bar
+
+- [ ] **MENU-01**: User can access Open Images, Open Batch, Save Batch, Export CSV, and Exit from a File menu
+- [ ] **MENU-02**: User can access Add Images, Remove Image, and Re-Analyze from a Batch menu
+- [ ] **MENU-03**: User can access Analyze, Auto-Optimize, Undo Mark, and Clear All from an Analysis menu
+- [ ] **MENU-04**: All menu items reflect the same enabled/disabled state as their corresponding toolbar action
+
+### Toolbar
+
+- [ ] **TOOL-01**: User can trigger Analyze, Auto-Optimize, Undo Mark, and Clear All from a persistent toolbar
+- [ ] **TOOL-02**: Toolbar is non-movable and cannot be hidden via right-click
+- [ ] **TOOL-03**: Toolbar buttons and menu items share the same QAction (single enable/disable source of truth)
+
+### Sidebar
+
+- [ ] **SIDE-01**: User can resize the left sidebar by dragging a splitter handle
+- [ ] **SIDE-02**: Sidebar has a minimum width and cannot be collapsed to zero
+- [ ] **SIDE-03**: Sidebar contains only the image list and parameter panel (no action buttons remain)
+
+### Status Bar
+
+- [ ] **STAT-01**: Status bar persistently shows the current batch name (or "No batch" when none is open)
+- [ ] **STAT-02**: Status bar persistently shows the current image count
+- [ ] **STAT-03**: Status bar persistently shows the current total cell count
+- [ ] **STAT-04**: Transient analysis progress and error messages still appear via showMessage()
+
+### Keyboard Shortcuts
+
+- [ ] **KEYS-01**: Ctrl+O opens images, Ctrl+S saves batch, Ctrl+Shift+O opens batch
+- [ ] **KEYS-02**: Ctrl+Z undoes last mark; Delete removes the selected image from the list
+- [ ] **KEYS-03**: F5 triggers Analyze
+
+---
+
+## v4 Requirements (deferred)
 
 ### Comparison
 
@@ -84,8 +120,7 @@
 ### UI Polish
 
 - **UI-01**: Zoom/pan on displayed images (QGraphicsView)
-- **UI-02**: Keyboard shortcut to step through images in the list
-- **UI-03**: Drag-and-drop image loading
+- **UI-02**: Drag-and-drop image loading
 
 ---
 
@@ -105,20 +140,45 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| APP-01–04 | Phase 1 | Pending |
-| IMG-01–03 | Phase 1 | Pending |
-| PARAM-01–07 | Phase 1 | Pending |
-| ANAL-01–07 | Phase 1 | Pending |
-| MARK-01–03 | Phase 1 | Pending |
-| CLR-01 | Phase 1 | Complete |
-| BATCH-01–06 | Phase 2 | Pending |
-| BMGR-01–07 | Phase 2 | Pending |
+| APP-01–04 | Phase 2 | Complete |
+| IMG-01–03 | Phase 2 | Complete |
+| PARAM-01–07 | Phase 2 | Complete |
+| ANAL-01–07 | Phase 2 | Complete |
+| MARK-01–03 | Phase 2 | Complete |
+| CLR-01 | Phase 2 | Complete |
+| BATCH-01–06 | Phase 3 | Complete |
+| BMGR-01–07 | Phase 3 | Complete |
+| MENU-01 | Phase 4 | Pending |
+| MENU-02 | Phase 4 | Pending |
+| MENU-03 | Phase 4 | Pending |
+| MENU-04 | Phase 4 | Pending |
+| TOOL-01 | Phase 4 | Pending |
+| TOOL-02 | Phase 4 | Pending |
+| TOOL-03 | Phase 4 | Pending |
+| SIDE-01 | Phase 4 | Pending |
+| SIDE-02 | Phase 4 | Pending |
+| SIDE-03 | Phase 4 | Pending |
+| STAT-01 | Phase 4 | Pending |
+| STAT-02 | Phase 4 | Pending |
+| STAT-03 | Phase 4 | Pending |
+| STAT-04 | Phase 4 | Pending |
+| KEYS-01 | Phase 4 | Pending |
+| KEYS-02 | Phase 4 | Pending |
+| KEYS-03 | Phase 4 | Pending |
+
+
+
+
+
+
+
 
 **Coverage:**
-- v1 requirements: 36 total
-- Mapped to phases: 36
+- v1/v2 requirements: 36 total (all Complete)
+- v3.0 requirements: 17 total
+- Mapped to phases: 17
 - Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-29*
-*Last updated: 2026-03-29 after initialization*
+*Last updated: 2026-03-30 after v3.0 milestone start*
