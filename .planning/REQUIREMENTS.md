@@ -67,10 +67,10 @@
 - [x] **BMGR-01**: "Open Batch" button shows a list of saved batches (name + date + image count)
 - [x] **BMGR-02**: Opening a batch loads all images and restores last-saved parameters and results
 - [x] **BMGR-03**: Missing images in a batch are flagged with a warning icon in the list (status computed at load time, not persisted)
-- [ ] **BMGR-04**: "Add Images" button (when batch is open) opens file dialog and copies new images into the batch folder, updating the manifest
-- [ ] **BMGR-05**: "Remove Image" button removes selected image from the manifest (file stays on disk — no data loss)
-- [ ] **BMGR-06**: "Re-Analyze" button re-runs `process_image()` on all batch images with current parameters; preserves `manual_marks`; overwrites `cell_count` and annotated images
-- [ ] **BMGR-07**: "Export CSV" button saves a CSV file (`<batch_name>_results.csv`) with filename + cell count + algo count + manual count columns
+- [x] **BMGR-04**: "Add Images" button (when batch is open) opens file dialog and copies new images into the batch folder, updating the manifest
+- [x] **BMGR-05**: "Remove Image" button removes selected image from the manifest (file stays on disk — no data loss)
+- [x] **BMGR-06**: "Re-Analyze" button re-runs `process_image()` on all batch images with current parameters; preserves `manual_marks`; overwrites `cell_count` and annotated images
+- [x] **BMGR-07**: "Export CSV" button saves a CSV file (`<batch_name>_results.csv`) with filename + cell count + algo count + manual count columns
 
 ---
 

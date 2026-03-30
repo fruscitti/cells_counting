@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: — Fluorescence Cell Counter Web App
-status: Ready to execute
-last_updated: "2026-03-30T01:54:24.179Z"
+status: Phase complete — ready for verification
+last_updated: "2026-03-30T02:02:03.383Z"
 progress:
   total_phases: 2
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 5
-  completed_plans: 4
+  completed_plans: 5
 ---
 
 # Project State
@@ -16,7 +16,7 @@ progress:
 **Project:** Fluorescence Cell Counter — Desktop App + Batch Management
 **Milestone:** v2.0
 **Branch:** local-ui
-**Last updated:** 2026-03-30 — Completed Plan 03-01 (BatchManager + Save/Open Batch UI)
+**Last updated:** 2026-03-29 — Completed Plan 03-02 (Batch Mutations: Add/Remove/Re-Analyze/Export CSV)
 
 ## Project Reference
 
@@ -27,17 +27,17 @@ See: .planning/PROJECT.md (updated 2026-03-29)
 
 ## Current Position
 
-Phase: 03 (batch-management) — EXECUTING
-Plan: 2 of 2
+Phase: 03 (batch-management) — COMPLETE
+Plan: 2 of 2 — all plans done
 
-Next step: Phase 3 (Batch Management) or run `/gsd:transition`
+Next step: Run `/gsd:verify-work` or `/gsd:transition`
 
 ## Phase Status
 
 | Phase | Name | Status |
 |-------|------|--------|
 | 2 | Desktop GUI | ● Complete (3/3 plans done) |
-| 3 | Batch Management | ○ Pending |
+| 3 | Batch Management | ● Complete (2/2 plans done) |
 
 ## Key Decisions Made in Planning
 
@@ -67,3 +67,7 @@ Next step: Phase 3 (Batch Management) or run `/gsd:transition`
 - Plan 03-01: annotated_rgb saved as BGR via cvtColor before cv2.imwrite (RGB/BGR pitfall from RESEARCH)
 - Plan 03-01: manifest status field computed at load time, not persisted — always reflects current disk state
 - Plan 03-01: manual_marks normalized from JSON lists to Python tuples on load in load_batch()
+- Plan 03-02: marks backup stored in self._marks_backup dict, restored per-image in _on_reanalyze_image_done
+- Plan 03-02: _is_analyzing flag guards all batch mutation buttons (prevents Pitfall 3: manifest written mid-analysis)
+- Plan 03-02: status field stripped via img.pop("status", None) before every _atomic_write_manifest in new mutation methods
+- Plan 03-02: test_reanalyze_preserves_marks uses qtbot.waitUntil on _is_analyzing flag (Python method patching doesn't intercept Qt slot dispatch)
