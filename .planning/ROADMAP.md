@@ -99,6 +99,12 @@ Plans:
 - "Export CSV" writes a valid CSV with all columns
 - Missing images in a batch show a warning, don't crash
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Batch Save + Open (BatchManager module + Save/Open UI)
+- [ ] 03-02-PLAN.md — Re-Analyze + Add/Remove + Export CSV
+
 #### Plan 3.1 — Batch Save + Open
 
 **Covers:** BATCH-01–06, BMGR-01–03
