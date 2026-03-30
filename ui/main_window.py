@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (
     QMainWindow, QWidget, QHBoxLayout, QVBoxLayout,
     QPushButton, QListWidget, QLabel, QProgressBar,
     QSplitter, QTableWidget, QTableWidgetItem, QHeaderView,
-    QFileDialog, QDialog, QInputDialog, QMessageBox
+    QFileDialog, QDialog, QInputDialog, QMessageBox, QScrollArea
 )
 from PySide6.QtCore import Qt, QThreadPool
 from PySide6.QtGui import QFont
@@ -130,13 +130,19 @@ class MainWindow(QMainWindow):
         self.original_label.setStyleSheet("border: 1px solid #aaa;")
         self.original_label.setText("Original")
         self.original_label.setAlignment(Qt.AlignCenter)
-        images_layout.addWidget(self.original_label)
+        self.original_scroll = QScrollArea()
+        self.original_scroll.setWidgetResizable(True)
+        self.original_scroll.setWidget(self.original_label)
+        images_layout.addWidget(self.original_scroll)
 
         self.annotated_label = ScaledImageLabel(click_enabled=True)
         self.annotated_label.setStyleSheet("border: 1px solid #aaa;")
         self.annotated_label.setText("Annotated")
         self.annotated_label.setAlignment(Qt.AlignCenter)
-        images_layout.addWidget(self.annotated_label)
+        self.annotated_scroll = QScrollArea()
+        self.annotated_scroll.setWidgetResizable(True)
+        self.annotated_scroll.setWidget(self.annotated_label)
+        images_layout.addWidget(self.annotated_scroll)
 
         right_splitter.addWidget(images_widget)
 
@@ -219,6 +225,10 @@ class MainWindow(QMainWindow):
         entry = self._images.get(filename)
         if entry is None:
             return
+
+        # Reset zoom before showing new image
+        self.original_label.zoom_reset()
+        self.annotated_label.zoom_reset()
 
         # Show original image
         self.original_label.setPixmap(numpy_rgb_to_pixmap(entry["original_rgb"]))
