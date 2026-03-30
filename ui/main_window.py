@@ -43,9 +43,9 @@ class MainWindow(QMainWindow):
         main_layout.setContentsMargins(8, 8, 8, 8)
         main_layout.setSpacing(8)
 
-        # --- Left panel (fixed 280px) ---
+        # --- Left panel (scrollable, fixed 298px to fit scrollbar) ---
         left_panel = QWidget()
-        left_panel.setFixedWidth(280)
+        left_panel.setFixedWidth(278)
         left_layout = QVBoxLayout(left_panel)
         left_layout.setContentsMargins(0, 0, 0, 0)
         left_layout.setSpacing(6)
@@ -115,7 +115,14 @@ class MainWindow(QMainWindow):
         left_layout.addWidget(self.count_label)
 
         left_layout.addStretch()
-        main_layout.addWidget(left_panel)
+
+        left_scroll = QScrollArea()
+        left_scroll.setFixedWidth(298)
+        left_scroll.setWidgetResizable(True)
+        left_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        left_scroll.setFrameShape(left_scroll.Shape.NoFrame)
+        left_scroll.setWidget(left_panel)
+        main_layout.addWidget(left_scroll)
 
         # --- Right side (splitter) ---
         right_splitter = QSplitter(Qt.Vertical)
@@ -347,8 +354,13 @@ class MainWindow(QMainWindow):
             return
         from analysis_core import draw_manual_marks
         display_rgb = draw_manual_marks(base_rgb, entry["manual_marks"])
+        hbar = self.annotated_scroll.horizontalScrollBar()
+        vbar = self.annotated_scroll.verticalScrollBar()
+        h_pos, v_pos = hbar.value(), vbar.value()
         self.annotated_label.setPixmap(numpy_rgb_to_pixmap(display_rgb))
         self.annotated_label.setText("")
+        hbar.setValue(h_pos)
+        vbar.setValue(v_pos)
         total = entry["algo_count"] + len(entry["manual_marks"])
         self.count_label.setText(f"Cell Count: {total}")
         self._update_results_row(self._current_file, total)
