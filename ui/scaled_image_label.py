@@ -24,7 +24,18 @@ class ScaledImageLabel(QLabel):
 
     def setPixmap(self, pixmap: QPixmap):
         self._pixmap = pixmap
-        self._apply_zoom()
+        if self._zoom > 1.0 and self._display_pixmap is not None:
+            # Already zoomed: just re-render the cache at the same size.
+            # Do NOT touch setFixedSize or scroll area — that causes the
+            # viewport to jump and the image to flash black on Windows.
+            self._display_pixmap = self._pixmap.scaled(
+                self._display_pixmap.size(),
+                Qt.KeepAspectRatio,
+                Qt.SmoothTransformation,
+            )
+            self.update()
+        else:
+            self._apply_zoom()
 
     def clearPixmap(self):
         self._pixmap = None
