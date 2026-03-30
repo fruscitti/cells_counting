@@ -317,12 +317,34 @@ class MainWindow(QMainWindow):
         self.undo_mark_btn.setEnabled(len(entry["manual_marks"]) > 0)
 
     def _on_annotated_click(self, orig_x: int, orig_y: int):
-        """MARK-01: Add a manual mark at the clicked position on the annotated image."""
+        """MARK-01: Toggle algo marks or add manual marks at the clicked position."""
         if self._current_file is None:
             return
         entry = self._images.get(self._current_file)
         if entry is None or entry["annotated_rgb"] is None:
             return
+
+        # 1. Check algo centroids — toggle remove/restore
+        removed = set(entry.get("removed_indices", []))
+        for i, (cx, cy) in enumerate(entry.get("algo_centroids", [])):
+            if (orig_x - cx) ** 2 + (orig_y - cy) ** 2 <= self.CIRCLE_RADIUS ** 2:
+                if i in removed:
+                    removed.discard(i)    # re-mark
+                else:
+                    removed.add(i)        # unmark
+                entry["removed_indices"] = list(removed)
+                self._redraw_annotated()
+                return
+
+        # 2. Check manual marks — remove on click
+        for i, (mx, my) in enumerate(entry["manual_marks"]):
+            if (orig_x - mx) ** 2 + (orig_y - my) ** 2 <= self.CIRCLE_RADIUS ** 2:
+                entry["manual_marks"].pop(i)
+                self._redraw_annotated()
+                self.undo_mark_btn.setEnabled(bool(entry["manual_marks"]))
+                return
+
+        # 3. No hit — add new manual mark
         entry["manual_marks"].append((orig_x, orig_y))
         self._redraw_annotated()
         self.undo_mark_btn.setEnabled(True)
@@ -342,21 +364,27 @@ class MainWindow(QMainWindow):
         if not marks:
             self.undo_mark_btn.setEnabled(False)
 
+    CIRCLE_RADIUS = 18
+
     def _redraw_annotated(self):
-        """Redraw the annotated image with current manual marks on top."""
+        """Redraw the annotated image from original_rgb using centroids state and manual marks."""
         if self._current_file is None:
             return
         entry = self._images.get(self._current_file)
-        if entry is None:
+        if entry is None or entry.get("annotated_rgb") is None:
             return
-        base_rgb = entry["annotated_rgb"]
-        if base_rgb is None:
-            return
+        base = entry["original_rgb"].copy()
+        removed = set(entry.get("removed_indices", []))
+        active = [(i, c) for i, c in enumerate(entry.get("algo_centroids", [])) if i not in removed]
+        for n, (i, (cx, cy)) in enumerate(active, 1):
+            cv2.circle(base, (cx, cy), self.CIRCLE_RADIUS, (0, 0, 255), 2)
+            cv2.putText(base, str(n), (cx - 10, cy - 25),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
         from analysis_core import draw_manual_marks
-        display_rgb = draw_manual_marks(base_rgb, entry["manual_marks"])
-        self.annotated_label.setPixmap(numpy_rgb_to_pixmap(display_rgb))
+        display = draw_manual_marks(base, entry["manual_marks"])
+        self.annotated_label.setPixmap(numpy_rgb_to_pixmap(display))
         self.annotated_label.setText("")
-        total = entry["algo_count"] + len(entry["manual_marks"])
+        total = len(active) + len(entry["manual_marks"])
         self.count_label.setText(f"Cell Count: {total}")
         self._update_results_row(self._current_file, total)
 
@@ -419,10 +447,12 @@ class MainWindow(QMainWindow):
         worker.signals.finished.connect(self._on_analysis_finished)
         QThreadPool.globalInstance().start(worker)
 
-    def _on_image_done(self, filename: str, annotated_rgb, count: int):
+    def _on_image_done(self, filename: str, annotated_rgb, count: int, centroids):
         """Handle completion of a single image analysis."""
         self._images[filename]["annotated_rgb"] = annotated_rgb
         self._images[filename]["algo_count"] = count
+        self._images[filename]["algo_centroids"] = list(centroids) if centroids else []
+        self._images[filename]["removed_indices"] = []   # reset on fresh analysis
         self._update_results_row(filename, count)
         if filename == self._current_file:
             self._redraw_annotated()
@@ -627,6 +657,8 @@ class MainWindow(QMainWindow):
                 "annotated_rgb": annotated_rgb,
                 "algo_count": entry.get("cell_count", 0),
                 "manual_marks": list(entry.get("manual_marks", [])),
+                "algo_centroids": [tuple(c) for c in entry.get("algo_centroids", [])],
+                "removed_indices": list(entry.get("removed_indices", [])),
             }
             self._file_paths.append(str(batch_dir / filename))
             self.image_list.addItem(filename)
@@ -722,15 +754,18 @@ class MainWindow(QMainWindow):
         worker.signals.error.connect(self._on_image_error)
         QThreadPool.globalInstance().start(worker)
 
-    def _on_reanalyze_image_done(self, filename: str, annotated_rgb, count: int):
+    def _on_reanalyze_image_done(self, filename: str, annotated_rgb, count: int, centroids):
         """Handle completion of a single image during re-analysis."""
         self._images[filename]["annotated_rgb"] = annotated_rgb
         self._images[filename]["algo_count"] = count
+        self._images[filename]["algo_centroids"] = list(centroids) if centroids else []
+        self._images[filename]["removed_indices"] = []   # reset: old indices are stale
         # Restore manual marks from backup (BMGR-06)
         self._images[filename]["manual_marks"] = self._marks_backup.get(filename, [])
         if filename == self._current_file:
             self._redraw_annotated()
-        total = count + len(self._images[filename]["manual_marks"])
+        active_algo = len(self._images[filename]["algo_centroids"])
+        total = active_algo + len(self._images[filename]["manual_marks"])
         self._update_results_row(filename, total)
 
     def _on_reanalyze_finished(self):

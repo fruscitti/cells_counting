@@ -52,12 +52,16 @@ class BatchManager:
                 bgr = cv2.cvtColor(entry["annotated_rgb"], cv2.COLOR_RGB2BGR)
                 cv2.imwrite(str(batch_dir / annotated_fn), bgr)
 
+            removed = set(entry.get("removed_indices", []))
+            active_algo = len(entry.get("algo_centroids", [])) - len(removed)
             manifest_images.append({
                 "filename": filename,
                 "original_filename": filename,
                 "annotated_filename": annotated_fn,
-                "cell_count": entry.get("algo_count", 0),
+                "cell_count": active_algo + len(entry.get("manual_marks", [])),
                 "manual_marks": [list(m) for m in entry.get("manual_marks", [])],
+                "algo_centroids": [list(c) for c in entry.get("algo_centroids", [])],
+                "removed_indices": list(entry.get("removed_indices", [])),
                 "analyzed_at": (
                     datetime.now(timezone.utc).isoformat()
                     if entry.get("annotated_rgb") is not None
@@ -96,6 +100,8 @@ class BatchManager:
             img_entry["manual_marks"] = [
                 tuple(m) for m in img_entry.get("manual_marks", [])
             ]
+            img_entry["algo_centroids"] = [tuple(c) for c in img_entry.get("algo_centroids", [])]
+            img_entry["removed_indices"] = list(img_entry.get("removed_indices", []))
         return manifest
 
     @classmethod
@@ -200,8 +206,12 @@ class BatchManager:
             fn = img_entry["filename"]
             if fn in images:
                 entry = images[fn]
-                img_entry["cell_count"] = entry.get("algo_count", 0)
+                removed = set(entry.get("removed_indices", []))
+                active_algo = len(entry.get("algo_centroids", [])) - len(removed)
+                img_entry["cell_count"] = active_algo + len(entry.get("manual_marks", []))
                 img_entry["manual_marks"] = [list(m) for m in entry.get("manual_marks", [])]
+                img_entry["algo_centroids"] = [list(c) for c in entry.get("algo_centroids", [])]
+                img_entry["removed_indices"] = list(entry.get("removed_indices", []))
                 img_entry["analyzed_at"] = datetime.now(timezone.utc).isoformat()
                 # Save updated annotated image if exists
                 if entry.get("annotated_rgb") is not None:
