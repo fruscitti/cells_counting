@@ -52,21 +52,21 @@
 
 ### Batch Save
 
-- [ ] **BATCH-01**: "Save Batch" button opens a dialog to enter a batch name
-- [ ] **BATCH-02**: Batch is saved as a folder under `batches/<YYYY-MM-DD_name>/` containing:
+- [x] **BATCH-01**: "Save Batch" button opens a dialog to enter a batch name
+- [x] **BATCH-02**: Batch is saved as a folder under `batches/<YYYY-MM-DD_name>/` containing:
   - `manifest.json` — schema_version, name, created_at, modified_at, parameters, images list
   - Copies of all original images (`shutil.copy2`)
   - Annotated images as PNG files
-- [ ] **BATCH-03**: manifest.json `parameters` includes all 9 processing parameters
-- [ ] **BATCH-04**: manifest.json `images[].manual_marks` stores click coordinates as `[[x,y],...]`
-- [ ] **BATCH-05**: Atomic save — write to temp file then `os.replace()` to prevent corrupt manifests on crash
-- [ ] **BATCH-06**: Batch name conflicts are resolved by appending a counter suffix (`name_2`, `name_3`)
+- [x] **BATCH-03**: manifest.json `parameters` includes all 9 processing parameters
+- [x] **BATCH-04**: manifest.json `images[].manual_marks` stores click coordinates as `[[x,y],...]`
+- [x] **BATCH-05**: Atomic save — write to temp file then `os.replace()` to prevent corrupt manifests on crash
+- [x] **BATCH-06**: Batch name conflicts are resolved by appending a counter suffix (`name_2`, `name_3`)
 
 ### Batch Management
 
-- [ ] **BMGR-01**: "Open Batch" button shows a list of saved batches (name + date + image count)
-- [ ] **BMGR-02**: Opening a batch loads all images and restores last-saved parameters and results
-- [ ] **BMGR-03**: Missing images in a batch are flagged with a warning icon in the list (status computed at load time, not persisted)
+- [x] **BMGR-01**: "Open Batch" button shows a list of saved batches (name + date + image count)
+- [x] **BMGR-02**: Opening a batch loads all images and restores last-saved parameters and results
+- [x] **BMGR-03**: Missing images in a batch are flagged with a warning icon in the list (status computed at load time, not persisted)
 - [ ] **BMGR-04**: "Add Images" button (when batch is open) opens file dialog and copies new images into the batch folder, updating the manifest
 - [ ] **BMGR-05**: "Remove Image" button removes selected image from the manifest (file stays on disk — no data loss)
 - [ ] **BMGR-06**: "Re-Analyze" button re-runs `process_image()` on all batch images with current parameters; preserves `manual_marks`; overwrites `cell_count` and annotated images

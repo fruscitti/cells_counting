@@ -18,7 +18,7 @@
 | Phase | Name | Plans | Status | Goal |
 |-------|------|-------|--------|------|
 | 2 | Desktop GUI | 3/3 | Complete   | 2026-03-30 |
-| 3 | Batch Management | 2 | ○ Pending | Save, open, re-analyze, add/remove images |
+| 3 | Batch Management | 1/2 | In Progress|  |
 
 ---
 
@@ -99,10 +99,10 @@ Plans:
 - "Export CSV" writes a valid CSV with all columns
 - Missing images in a batch show a warning, don't crash
 
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
-- [ ] 03-01-PLAN.md — Batch Save + Open (BatchManager module + Save/Open UI)
+- [x] 03-01-PLAN.md — Batch Save + Open (BatchManager module + Save/Open UI)
 - [ ] 03-02-PLAN.md — Re-Analyze + Add/Remove + Export CSV
 
 #### Plan 3.1 — Batch Save + Open

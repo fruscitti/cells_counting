@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: — Fluorescence Cell Counter Web App
-status: Milestone complete
-last_updated: "2026-03-30T01:27:42.122Z"
+status: Ready to execute
+last_updated: "2026-03-30T01:54:24.179Z"
 progress:
-  total_phases: 1
+  total_phases: 2
   completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
+  total_plans: 5
+  completed_plans: 4
 ---
 
 # Project State
@@ -16,19 +16,19 @@ progress:
 **Project:** Fluorescence Cell Counter — Desktop App + Batch Management
 **Milestone:** v2.0
 **Branch:** local-ui
-**Last updated:** 2026-03-30 — Completed Plan 02-03 (Manual Annotation + Clear + Polish) — Phase 2 COMPLETE
+**Last updated:** 2026-03-30 — Completed Plan 03-01 (BatchManager + Save/Open Batch UI)
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-03-29)
 
 **Core value:** Scientists can analyze fluorescence images offline, save named batches, and return to re-examine or modify sessions without a web browser.
-**Current focus:** Phase 02 — desktop-gui
+**Current focus:** Phase 03 — batch-management
 
 ## Current Position
 
-Phase: 02
-Plan: Not started
+Phase: 03 (batch-management) — EXECUTING
+Plan: 2 of 2
 
 Next step: Phase 3 (Batch Management) or run `/gsd:transition`
 
@@ -63,3 +63,7 @@ Next step: Phase 3 (Batch Management) or run `/gsd:transition`
 - Plan 02-03: _on_clear calls param_panel.reset_defaults() for full parameter reset (CLR-01)
 - Plan 02-03: undo_mark_btn enabled/disabled based on marks list length for accurate UI affordance
 - Plan 02-03: from analysis_core import draw_manual_marks placed inside method body to avoid circular imports
+- Plan 03-01: BatchManager is pure Python with no Qt imports for unit testability without QApplication
+- Plan 03-01: annotated_rgb saved as BGR via cvtColor before cv2.imwrite (RGB/BGR pitfall from RESEARCH)
+- Plan 03-01: manifest status field computed at load time, not persisted — always reflects current disk state
+- Plan 03-01: manual_marks normalized from JSON lists to Python tuples on load in load_batch()
