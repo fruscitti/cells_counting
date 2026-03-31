@@ -31,7 +31,7 @@ See: .planning/PROJECT.md (updated 2026-03-30)
 Phase: 05
 Plan: Not started
 Status: Phase 05 complete — ready for verification
-Last activity: 2026-03-30
+Last activity: 2026-03-31 - Completed quick task 260331-hi7: build Windows installer executable for cell counter app using GitHub Actions CI releases folder
 
 ```
 v3.0 Progress: [████░░░░░░] ~33% (1/3 phases complete)
@@ -115,3 +115,4 @@ None.
 | 260330-eto | Fix batch management: cell counts on open, save in-place, total row | 2026-03-30 | 73e6ff8 | [260330-eto-fix-batch-management-cell-counts-not-res](.planning/quick/260330-eto-fix-batch-management-cell-counts-not-res/) |
 | 260330-f91 | Add mouse-wheel zoom + QScrollArea pan to both image panels | 2026-03-30 | 8137070 | [260330-f91-add-manual-cell-marking-zoom-images-mark](.planning/quick/260330-f91-add-manual-cell-marking-zoom-images-mark/) |
 | 260330-i45 | Add ability to unmark detected cells by clicking | 2026-03-30 | 2d9efde | [260330-i45-add-ability-to-unmark-detected-cells-by-](.planning/quick/260330-i45-add-ability-to-unmark-detected-cells-by-/) |
+| 260331-hi7 | build Windows installer executable for cell counter app using GitHub Actions CI releases folder | 2026-03-31 | 1bf0e3c | [260331-hi7-build-windows-installer-executable-for-c](.planning/quick/260331-hi7-build-windows-installer-executable-for-c/) |
