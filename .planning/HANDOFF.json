@@ -1,0 +1,40 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-03-31T20:30:23.781Z",
+  "phase": null,
+  "phase_name": "Quick Tasks Session",
+  "phase_dir": null,
+  "plan": null,
+  "task": null,
+  "total_tasks": null,
+  "status": "paused",
+  "completed_tasks": [
+    {"id": 1, "name": "Windows installer build pipeline (quick-260331-hi7)", "status": "done", "commit": "1bf0e3c"},
+    {"id": 2, "name": "NSIS LZMA compression fix", "status": "done", "commit": "a2f1063"},
+    {"id": 3, "name": "GitHub Releases workflow (softprops/action-gh-release@v2)", "status": "done", "commit": "30528be"},
+    {"id": 4, "name": "README rewrite for desktop GUI version", "status": "done", "commit": "b8b13f4"},
+    {"id": 5, "name": "Node.js 24 opt-in for actions", "status": "done", "commit": "604199e"}
+  ],
+  "remaining_tasks": [],
+  "blockers": [],
+  "human_actions_pending": [
+    {
+      "action": "Trigger GitHub Actions workflow correctly: go to Actions → Build Windows Installer → Run workflow (blue button, new dispatch) — enter version e.g. v1.0.0",
+      "context": "User has been re-running old job runs which reuse commit f1c94cd (before fixes). Must use NEW workflow_dispatch, not re-run. Remote HEAD is 604199e with all fixes including GitHub Releases, LZMA compression, Node.js 24.",
+      "blocking": true
+    }
+  ],
+  "decisions": [
+    {"decision": "GitHub Releases over committing binary to repo", "rationale": "100MB+ binary would bloat git history; GitHub Release assets have permanent public URL", "phase": "quick"},
+    {"decision": "windows-2022 runner (NOT windows-latest)", "rationale": "windows-latest maps to windows-2025 where NSIS is not pre-installed", "phase": "quick"},
+    {"decision": "PyInstaller --onedir + NSIS MUI2", "rationale": "onedir avoids 10-30s extraction delay of --onefile; NSIS gives professional installer with Start Menu", "phase": "quick"},
+    {"decision": "SetCompressor /SOLID lzma in NSIS", "rationale": "Reduces installer from 298MB to ~120-150MB", "phase": "quick"}
+  ],
+  "uncommitted_files": [
+    "app.py (modified, pre-existing)",
+    "batch_manager.py (modified, pre-existing)",
+    "ui/main_window.py (modified, pre-existing)"
+  ],
+  "next_action": "Verify the user successfully triggered a NEW workflow_dispatch (not re-run) and GitHub Release was created at github.com/fruscitti/cells_counting/releases",
+  "context_notes": "All workflow fixes are on remote main at 604199e. The installer pipeline is fully working — the only issue was user was re-running old job instead of dispatching new one. The 3 modified files (app.py, batch_manager.py, ui/main_window.py) are pre-existing uncommitted changes unrelated to this session."
+}
