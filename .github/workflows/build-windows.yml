@@ -1,9 +1,9 @@
 # .github/workflows/build-windows.yml
 # Builds a Windows NSIS installer for the Cell Counter PySide6 desktop app.
 #
-# Trigger: manual only (workflow_dispatch) — no automatic builds on push/tag.
-# Output:  CellCounterInstaller-<run_number>.zip containing CellCounterInstaller.exe
-#          available as a downloadable artifact for 30 days.
+# Trigger: manual only (workflow_dispatch) — enter a version like "v1.0.0".
+# Output:  GitHub Release created at that tag with CellCounterInstaller.exe attached.
+#          Public download URL: https://github.com/<owner>/<repo>/releases/download/<version>/CellCounterInstaller.exe
 #
 # IMPORTANT: uses windows-2022 (NOT windows-latest).
 #   windows-latest now maps to windows-2025 where NSIS is not installed.
@@ -13,6 +13,14 @@ name: Build Windows Installer
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+
+permissions:
+  contents: write    # required to create GitHub Releases and upload assets
 
 jobs:
   build:
@@ -40,9 +48,18 @@ jobs:
           cd releases/windows
           & "C:\Program Files (x86)\NSIS\makensis.exe" installer.nsi
 
-      - name: Upload installer artifact
-        uses: actions/upload-artifact@v4
+      - name: Create GitHub Release and upload installer
+        uses: softprops/action-gh-release@v2
         with:
-          name: CellCounterInstaller-${{ github.run_number }}
-          path: releases/CellCounterInstaller.exe
-          retention-days: 30
+          tag_name: ${{ github.event.inputs.version }}
+          name: Cell Counter ${{ github.event.inputs.version }}
+          body: |
+            ## Cell Counter ${{ github.event.inputs.version }} — Windows Installer
+
+            **Download and run `CellCounterInstaller.exe`** to install Cell Counter on Windows.
+
+            The installer adds Cell Counter to your Start Menu and Program Files.
+            An uninstaller is included (via Windows Settings → Apps).
+          files: releases/CellCounterInstaller.exe
+          draft: false
+          prerelease: false
