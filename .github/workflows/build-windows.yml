@@ -22,6 +22,9 @@ on:
 permissions:
   contents: write    # required to create GitHub Releases and upload assets
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true    # opt into Node.js 24 now (Node 20 deprecated June 2026)
+
 jobs:
   build:
     runs-on: windows-2022    # CRITICAL: NOT windows-latest (= 2025, no NSIS)
