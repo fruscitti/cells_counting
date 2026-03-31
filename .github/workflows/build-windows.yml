@@ -24,6 +24,8 @@ jobs:
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v7    # uv is NOT pre-installed on runner images
+        with:
+          enable-cache: false          # suppress "no requirements*.txt found" warning
 
       - name: Install Python dependencies
         run: uv pip install --system pyinstaller pillow PySide6 opencv-python pandas numpy

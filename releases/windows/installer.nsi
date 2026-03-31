@@ -19,6 +19,10 @@
 !define INSTALL_DIR "$PROGRAMFILES64\CellCounter"
 !define DIST_DIR    "..\..\releases\dist\CellCounter"
 
+; ----- Compression (set before any sections) ---------------------------------
+
+SetCompressor /SOLID lzma
+
 ; ----- Installer metadata ----------------------------------------------------
 
 Name            "${APPNAME}"
