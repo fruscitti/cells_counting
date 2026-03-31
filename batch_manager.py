@@ -2,10 +2,23 @@
 import json
 import os
 import shutil
+import sys
 import tempfile
 import cv2
 from datetime import datetime, timezone
 from pathlib import Path
+
+
+def _default_batches_root() -> Path:
+    """Return batches directory.
+
+    When running as a PyInstaller bundle (installer), use ~/CelulasBatches so
+    the app doesn't try to write into the read-only install directory.
+    When running from source, keep batches/ next to the repo root as before.
+    """
+    if getattr(sys, "frozen", False):
+        return Path.home() / "CelulasBatches"
+    return Path(__file__).parent / "batches"
 
 
 class BatchManager:
@@ -18,7 +31,7 @@ class BatchManager:
     """
 
     SCHEMA_VERSION = 1
-    BATCHES_ROOT = Path.home() / "CelulasBatches"
+    BATCHES_ROOT = _default_batches_root()
 
     @classmethod
     def save_batch(cls, name: str, images: dict, params: dict) -> Path:
