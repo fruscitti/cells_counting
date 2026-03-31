@@ -18,7 +18,7 @@ class BatchManager:
     """
 
     SCHEMA_VERSION = 1
-    BATCHES_ROOT = Path(__file__).parent / "batches"
+    BATCHES_ROOT = Path.home() / "CelulasBatches"
 
     @classmethod
     def save_batch(cls, name: str, images: dict, params: dict) -> Path:
