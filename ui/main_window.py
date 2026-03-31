@@ -695,6 +695,7 @@ class MainWindow(QMainWindow):
         self._current_batch_dir = batch_dir
         self.setWindowTitle(f"Cell Counter — {name.strip()}")
         self.status_label.setText(f"Batch saved: {batch_dir.name}")
+        self._update_status_bar()
 
     def _on_open_batch(self):
         """Show dialog to open a saved batch."""

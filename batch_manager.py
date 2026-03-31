@@ -136,10 +136,20 @@ class BatchManager:
         (required for atomic os.replace on POSIX).
         """
         target = batch_dir / "manifest.json"
+        import numpy as np
+
+        class _NumpyEncoder(json.JSONEncoder):
+            def default(self, obj):
+                if isinstance(obj, np.integer):
+                    return int(obj)
+                if isinstance(obj, np.floating):
+                    return float(obj)
+                return super().default(obj)
+
         fd, tmp_path = tempfile.mkstemp(dir=str(batch_dir), suffix=".tmp")
         try:
             with os.fdopen(fd, "w", encoding="utf-8") as f:
-                json.dump(manifest, f, indent=2)
+                json.dump(manifest, f, indent=2, cls=_NumpyEncoder)
             os.replace(tmp_path, str(target))
         except Exception:
             try:

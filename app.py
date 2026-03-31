@@ -12,6 +12,14 @@ def main():
             Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
         )
     app = QApplication(sys.argv)
+    app.setApplicationName("Cell Counter")
+    if sys.platform == "darwin":
+        try:
+            from Foundation import NSBundle
+            info = NSBundle.mainBundle().infoDictionary()
+            info["CFBundleName"] = "Cell Counter"
+        except Exception:
+            pass
     icon_path = os.path.join(os.path.dirname(__file__), "icon.png")
     if os.path.exists(icon_path):
         app.setWindowIcon(QIcon(icon_path))
