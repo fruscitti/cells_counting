@@ -1,0 +1,46 @@
+# .github/workflows/build-windows.yml
+# Builds a Windows NSIS installer for the Cell Counter PySide6 desktop app.
+#
+# Trigger: manual only (workflow_dispatch) — no automatic builds on push/tag.
+# Output:  CellCounterInstaller-<run_number>.zip containing CellCounterInstaller.exe
+#          available as a downloadable artifact for 30 days.
+#
+# IMPORTANT: uses windows-2022 (NOT windows-latest).
+#   windows-latest now maps to windows-2025 where NSIS is not installed.
+#   NSIS 3.10 is pre-installed on windows-2022.
+
+name: Build Windows Installer
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-2022    # CRITICAL: NOT windows-latest (= 2025, no NSIS)
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7    # uv is NOT pre-installed on runner images
+
+      - name: Install Python dependencies
+        run: uv pip install --system pyinstaller pillow PySide6 opencv-python pandas numpy
+        # --system installs into the system Python so pyinstaller is on PATH
+
+      - name: Build with PyInstaller
+        run: pyinstaller releases/windows/cell_counter.spec --distpath releases/dist --workpath releases/build
+
+      - name: Build NSIS installer
+        shell: pwsh
+        run: |
+          cd releases/windows
+          & "C:\Program Files (x86)\NSIS\makensis.exe" installer.nsi
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CellCounterInstaller-${{ github.run_number }}
+          path: releases/CellCounterInstaller.exe
+          retention-days: 30
